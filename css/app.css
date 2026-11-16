@@ -449,7 +449,8 @@ details.acc[open]:not(.closing) .acc-chev { transform: rotate(180deg); }
 }
 .step-chip b { width: 24px; height: 24px; flex: none; border-radius: 50%; background: #fff; color: #0d1e32; display: grid; place-items: center; font-size: 13px; font-weight: 800; }
 .variant-badge { position: absolute; right: 10px; top: 10px; display: none; background: var(--red); color: #fff; font-size: 12px; font-weight: 750; padding: 5px 11px; border-radius: 99px; }
-.stage.wrong .variant-badge { display: block; animation: enter 0.3s var(--ease); --dx: 0px; --dy: -6px; }
+.stage.wrong .step-chip b { background: var(--red); color: #fff; }
+.stage.wrong .variant-badge { display: none; animation: enter 0.3s var(--ease); --dx: 0px; --dy: -6px; }
 .stage-play {
   position: absolute; left: 50%; top: 50%; width: 68px; height: 68px; margin: -34px 0 0 -34px;
   border: 0; border-radius: 50%; background: rgb(13 30 50 / 78%); color: #fff;

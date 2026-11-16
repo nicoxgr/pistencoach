@@ -1,6 +1,6 @@
 // Remaining lessons: traverse, side slipping, turn to the hill, line choice,
-// moguls and ice. Traverse and side slipping use `side` to keep the edges on
-// one side and are shown from behind only.
+// moguls and ice. Traverse and side slipping use `side` and `traverse` to head
+// across the hill; `slip` makes the skier slide down sideways. `bumps` draws moguls.
 
 import { keys, win } from '../curves.js';
 
@@ -16,7 +16,7 @@ const across = { amp: 0, side: 1, traverse: 1.3, edgeShape: 0, skid: () => 0, to
 
 export const schraegfahrt = {
   id: 'schraegfahrt',
-  views: ['front'],
+  views: ['front', 'top'],
   base: {
     ...across,
     turnTime: 3.6,
@@ -43,9 +43,13 @@ export const schraegfahrt = {
 
 export const seitrutschen = {
   id: 'seitrutschen',
-  views: ['front'],
+  views: ['front', 'top'],
   base: {
     ...across,
+    traverse: 1.5,
+    slip: true,
+    // Slide only while the skis are flat, stand still while the edges hold.
+    warp: (v) => keys(v, [[0, 0], [0.18, 0.02], [0.62, 0.96], [0.8, 1], [1, 1]]),
     turnTime: 4.2,
     len: 110,
     leanMax: 0.32,
@@ -58,6 +62,7 @@ export const seitrutschen = {
     right,
     wrong('<b>Ganz auf oder ganz ab.</b> Die Kanten lösen und greifen ruckartig. Du rutschst in Sprüngen und der Oberkörper kippt zum Hang.', {
       lean: ({ v }) => keys(v, [[0, 1], [0.3, 1], [0.34, 0], [0.6, 0], [0.64, 1.2], [1, 1]]),
+      warp: (v) => keys(v, [[0, 0], [0.33, 0], [0.4, 0.45], [0.58, 0.9], [0.64, 1], [1, 1]]),
       angulation: () => -0.3,
       outer: () => 0.4,
       flex: () => 0.2,
@@ -66,7 +71,7 @@ export const seitrutschen = {
   steps: [
     { a: 0.84, b: 0.14, label: 'Kanten halten', text: 'Knie zum Hang: Beide Kanten greifen und du stehst sicher quer zum Hang.' },
     { a: 0.14, b: 0.36, label: 'Knie talwärts', text: 'Du kippst die Knie langsam talwärts. Die Ski werden flacher, die Kantenlinien verblassen.' },
-    { a: 0.36, b: 0.62, label: 'Rutschen', text: 'Die fast flachen Ski schaben seitlich den Hang hinunter. Das Gewicht bleibt über der Fußmitte.' },
+    { a: 0.36, b: 0.62, label: 'Rutschen', text: 'Die fast flachen Ski schaben seitlich den Hang hinunter. Von oben siehst du das breite Band, das sie hinterlassen. Das Gewicht bleibt über der Fußmitte.' },
     { a: 0.62, b: 0.84, label: 'Wieder aufkanten', text: 'Knie zurück zum Hang. Die Kanten greifen weich und du kommst zum Stehen.' },
   ],
 };
@@ -161,6 +166,7 @@ export const buckel = {
     edgeShape: 0.5,
     slope: 22,
     piste: 'black',
+    bumps: true,
     trailSkid: 0.8,
     width: () => 20,
     flex: ({ v }) => keys(v, [[0, 0.8], [0.12, 0.98], [0.5, 0.12], [0.86, 0.6], [1, 0.8]]),

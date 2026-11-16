@@ -33,23 +33,29 @@ export function createTopView(model) {
   el('rect', { width: W, height: H, fill: `url(#${gid})` }, svg);
 
   // Repeating world tile (one loop long) so the loop wraps seamlessly.
-  const T = model.len * model.turns;
+  // One loop moves the world by (loopX, loopY). The tile repeats with exactly
+  // that period, so the loop wraps without a visible jump.
+  const follow = model.follow;
+  const end = model.state(model.duration - 1e-6);
+  const T = follow ? Math.max(40, Math.abs(end.y)) : model.len * model.turns;
+  const TW = follow ? Math.max(40, Math.abs(end.x)) : W;
   const tileWrap = el('g', {}, svg);
   const tile = el('g', { id: uid('tile') }, defs);
   const r = rng(7);
-  for (let i = 0; i < 46; i++) {
+  const nSpecks = follow ? Math.max(5, Math.round((TW * T) / 2600)) : 46;
+  for (let i = 0; i < nSpecks; i++) {
     const rx = 2 + r() * 6;
-    el('ellipse', { cx: f(30 + r() * (W - 60)), cy: f(r() * T), rx: f(rx), ry: f(rx * 0.45), fill: C.snowShade, opacity: 0.55 }, tile);
+    el('ellipse', { cx: f(follow ? r() * TW : 30 + r() * (W - 60)), cy: f(r() * T), rx: f(rx), ry: f(rx * 0.45), fill: C.snowShade, opacity: 0.55 }, tile);
   }
   const marker = PISTE[model.piste] || PISTE.blue;
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < (follow ? 0 : 3); i++) {
     const y = (i * T) / 3 + 40;
     for (const x of [26, W - 26]) {
       el('ellipse', { cx: x + 3, cy: y + 3, rx: 5, ry: 3, fill: '#000', opacity: 0.12 }, tile);
       el('circle', { cx: x, cy: y, r: 4.2, fill: marker }, tile);
     }
   }
-  for (let i = 0; i < 9; i++) {
+  for (let i = 0; i < (follow ? 0 : 9); i++) {
     const y = r() * T;
     for (const x of [r() * 8 - 6, W - r() * 8 + 6]) {
       const rad = 13 + r() * 7;
@@ -58,7 +64,11 @@ export function createTopView(model) {
       el('circle', { cx: f(x - 3), cy: f(y - 3), r: f(rad * 0.55), fill: C.treeLight }, tile);
     }
   }
-  const tileUses = [-1, 0, 1].map((j) => el('use', { href: `#${tile.id}`, y: j * T }, tileWrap));
+  const nx = follow ? Math.ceil(W / TW) + 2 : 1;
+  const ny = Math.ceil(H / T) + 2;
+  const tileUses = [];
+  for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) tileUses.push({ i, j, n: el('use', { href: `#${tile.id}` }, tileWrap) });
+  const bumps = el('g', {}, svg);
 
   // Fall line hint
   const hint = el('g', { transform: `translate(${W - 92} ${H - 46})`, opacity: 0.75 }, svg);
@@ -99,18 +109,32 @@ export function createTopView(model) {
   const aheadTime = model.turnTime * 1.1;
   const STEP = model.turnTime / 36;
 
+  let camX = 0; // camera offset across the hill, set per frame
+
   function skiPositions(st) {
     const off = st.width / 2 + Math.abs(st.splay) * SKI_L * 0.32;
     const n = right(st.heading);
-    const c = [CX + st.x, st.y];
+    const c = [CX + st.x - camX, st.y];
     return [add(c, n, -off), add(c, n, off)]; // [left, right]
   }
 
   function render(st) {
     const y0 = st.y;
+    camX = follow ? st.x : 0;
     const sy = (y) => CY + (y - y0);
-    const ty = CY - mod(y0, T);
-    tileUses.forEach((u, i) => set(u, { y: f(ty + (i - 1) * T) }));
+    const ty = CY - mod(y0, T) - T * Math.ceil(CY / T);
+    const tx = follow ? CX - mod(camX, TW) - TW * Math.ceil(CX / TW) : 0;
+    tileUses.forEach((u) => set(u.n, { x: f(tx + u.i * TW), y: f(ty + u.j * T) }));
+
+    // Moguls as soft shapes where each turn changes edges
+    if (model.bumps) {
+      bumps.replaceChildren();
+      for (let kk = st.k - 3; kk <= st.k + 3; kk++) {
+        const b = model.state((kk + model.cross) * model.turnTime);
+        el('ellipse', { cx: f(CX + b.x * 0.5), cy: f(sy(b.y) + 5), rx: 40, ry: 24, fill: C.snowShade, opacity: 0.55 }, bumps);
+        el('ellipse', { cx: f(CX + b.x * 0.5), cy: f(sy(b.y)), rx: 36, ry: 20, fill: C.snowTop }, bumps);
+      }
+    }
 
     // Trail and upcoming line
     const L = [];
@@ -124,14 +148,14 @@ export function createTopView(model) {
     const [cl, cr] = skiPositions(st);
     L.push([cl[0], sy(cl[1])]);
     R.push([cr[0], sy(cr[1])]);
-    const bw = 3 + clamp(model.trailSkid ?? 0.4) * 12;
+    const bw = model.slip ? SKI_L * 0.9 : 3 + clamp(model.trailSkid ?? 0.4) * 12;
     band.forEach((b, i) => set(b, { points: pts(i ? R : L), 'stroke-width': f(bw) }));
     line.forEach((b, i) => set(b, { points: pts(i ? R : L) }));
 
     const A = [];
     for (let t = st.t; t <= st.t + aheadTime; t += STEP) {
       const s = model.state(t);
-      A.push([CX + s.x, sy(s.y)]);
+      A.push([CX + s.x - camX, sy(s.y)]);
     }
     set(ahead, { points: pts(A) });
 
@@ -149,7 +173,7 @@ export function createTopView(model) {
 
     // Skier
     const n = right(st.heading);
-    const center = [CX + st.x, CY];
+    const center = [CX + st.x - camX, CY];
     const body = add(center, n, st.lean * 22);
     set(shadow, { cx: f(body[0] + 4), cy: f(body[1] + 5) });
     const z = 1.25; // draw the skier a bit larger than the track scale
@@ -188,7 +212,7 @@ export function createTopView(model) {
   function poleTipWorld(st, i) {
     const side = i === 0 ? -1 : 1;
     const n = right(st.heading);
-    const c = add([CX + st.x, st.y], n, st.lean * 22);
+    const c = add([CX + st.x - camX, st.y], n, st.lean * 22);
     const tf = fwd(st.torso);
     const tn = right(st.torso);
     const rest = add(add(c, tn, side * 27), tf, -16);
@@ -196,7 +220,7 @@ export function createTopView(model) {
     if (plantAmt <= 0) return rest;
     const sf = fwd(st.skiHeading);
     const sn = right(st.skiHeading);
-    const plant = add(add([CX + st.x, st.y], sf, 34), sn, side * 24);
+    const plant = add(add([CX + st.x - camX, st.y], sf, 34), sn, side * 24);
     return [rest[0] + (plant[0] - rest[0]) * plantAmt, rest[1] + (plant[1] - rest[1]) * plantAmt];
   }
 

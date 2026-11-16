@@ -51,10 +51,17 @@ export function createTurnModel(cfg) {
     const m = Math.abs(sinv);
     const ph = { v, sign, next, m };
 
-    const x = c.amp * sinv;
-    const y = c.len * sw;
+    let x = c.amp * sinv;
+    let y = c.len * sw;
     // `traverse` (rad off the fall line) fixes the heading for runs across the hill.
     const heading = c.traverse ? FALL_LINE + (c.side || 1) * c.traverse : Math.atan2(c.len, c.amp * Math.PI * Math.cos(Math.PI * sp));
+
+    if (c.traverse) {
+      // Across the hill: move along the heading, or straight down when side slipping.
+      const travel = c.slip ? FALL_LINE : heading;
+      x = c.len * sw * Math.cos(travel);
+      y = c.len * sw * Math.sin(travel);
+    }
 
     const lean = sign * c.leanMax * Math.pow(m, c.edgeShape) * c.lean(ph);
     const splay = c.splay(ph);
@@ -71,6 +78,7 @@ export function createTurnModel(cfg) {
 
     return {
       t, s, v, k, x, y, heading, sign, m,
+      dist: sw * c.turnTime, // time-like distance, follows speed changes
       lean, splay, edgeL, edgeR,
       width: c.width(ph),
       flex: c.flex(ph),
@@ -95,5 +103,5 @@ export function createTurnModel(cfg) {
     }
   }
 
-  return { ...c, duration, state, plantV };
+  return { ...c, duration, state, plantV, follow: !!c.traverse && !c.slip };
 }

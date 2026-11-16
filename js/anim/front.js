@@ -83,11 +83,12 @@ export function createFrontView(model) {
     // Specks
     const speed = 0.35;
     specks.forEach((sp, i) => {
-      const phase = mod(st.t * speed + i / specks.length, 1);
+      // Side slipping: the snow passes sideways. Otherwise it rushes towards the horizon.
+      const phase = model.slip ? ((i * 29) % specks.length) / specks.length : mod(st.dist * speed + i / specks.length, 1);
       const depth = 1 - phase; // 1 = near, 0 = horizon
       const lane = ((i * 37) % 17) / 16 - 0.5;
       const y = HORIZON + (G + 40 - HORIZON) * depth * depth;
-      const x = W / 2 + lane * W * (0.15 + depth * 1.3) - st.x * 0.4 * depth;
+      const x = model.slip ? mod(i * 53 + st.dist * 70 * (0.4 + depth), W + 80) - 40 : W / 2 + lane * W * (0.15 + depth * 1.3) - st.x * 0.4 * depth;
       set(sp, { cx: f(x), cy: f(y), rx: f(1 + depth * 7), ry: f(0.5 + depth * 2), opacity: f(0.2 + depth * 0.6) });
     });
 

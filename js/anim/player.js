@@ -78,6 +78,7 @@ export function createPlayer(scene) {
   let raf = 0;
   let last = 0;
   let curStep = -1;
+  let showSteps = true; // the steps describe the right movement only
 
   function buildView() {
     if (view) view.svg.remove();
@@ -93,6 +94,7 @@ export function createPlayer(scene) {
     const pos = (t / model.duration) * 1000;
     range.value = Math.round(pos);
     range.style.setProperty('--pos', `${pos / 10}%`);
+    if (!showSteps) return;
     const i = stepIndex(scene.steps, st.v);
     const s = scene.steps[i];
     if (i !== curStep) {
@@ -163,6 +165,11 @@ export function createPlayer(scene) {
       t = mod(t, model.duration);
       setSeg(varSeg, i);
       stage.classList.toggle('wrong', bad);
+      // The mistake has no step list: show its name in the chip instead.
+      showSteps = !bad || !!v.steps;
+      stepList.hidden = !showSteps;
+      curStep = -1;
+      if (!showSteps) chip.innerHTML = `<b>!</b>${(v.note.match(/<b>(.*?)<\/b>/) || [, 'Fehlerbild'])[1].replace(/\.$/, '')}`;
       note.innerHTML = v.note || '';
       note.hidden = !v.note;
       if (v.note && !reduced) note.animate([{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }], { duration: 260, easing: 'ease-out' });
@@ -212,12 +219,15 @@ export function createPlayer(scene) {
   const ro = 'ResizeObserver' in window ? new ResizeObserver(() => {
     if (root.clientWidth === fitWidth) return;
     fitWidth = root.clientWidth;
-    stepList.style.minHeight = '';
-    stepList.classList.add('measuring');
-    const collapsed = stepList.offsetHeight;
-    const longest = Math.max(...[...stepList.querySelectorAll('span')].map((x) => x.scrollHeight));
-    stepList.classList.remove('measuring');
-    stepList.style.minHeight = `${collapsed + longest + 3}px`;
+    // Measure in the next frame, outside the observer callback.
+    requestAnimationFrame(() => {
+      stepList.style.minHeight = '';
+      stepList.classList.add('measuring');
+      const collapsed = stepList.offsetHeight;
+      const longest = Math.max(...[...stepList.querySelectorAll('span')].map((x) => x.scrollHeight));
+      stepList.classList.remove('measuring');
+      stepList.style.minHeight = `${collapsed + longest + 3}px`;
+    });
   }) : null;
   if (ro) ro.observe(root);
 

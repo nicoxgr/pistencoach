@@ -48,5 +48,6 @@ Icons: `icons/icon.svg` ist die Quelle. PNGs neu erzeugen mit `qlmanage -t -s 10
 
 ## Stand
 
-- Version 0.3.3: alle 23 Lektionen mit Inhalt und Animation, dazu Problemfinder, Glossar, Tipp des Tages und Einstufung
-- Vereinfachungen im Schwungmodell: Schrägfahrt und Seitrutschen gibt es nur in der Ansicht von hinten (`side` hält die Kanten auf einer Seite). Die Buckelpiste zeigt das Beugen und Strecken, aber kein Geländeprofil
+- Version 0.4.0: alle 23 Lektionen mit Inhalt und Animation, dazu Problemfinder, Glossar, Tipp des Tages und Einstufung
+- Das Schwungmodell kennt Kurvenfolgen, Geradeausfahrt, Querfahrt (`traverse`), seitliches Rutschen (`slip`) und Buckel (`bumps`). Die Ansicht von hinten neigt die Schneefläche je nach Fahrtrichtung, alle Ansichten folgen dem Tempo (`warp`)
+- Beim Fehlerbild blendet der Player die Schritte aus, weil sie die richtige Ausführung beschreiben. Eine Variante kann eigene `steps` mitbringen

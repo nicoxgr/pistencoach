@@ -28,7 +28,13 @@ export function createSideView(model) {
   el('stop', { offset: 1, 'stop-color': '#eaf3fb' }, g1);
   el('rect', { width: W, height: H, fill: `url(#${sky})` }, svg);
   el('path', { d: `M0 ${groundY(0) - 70} L60 ${groundY(60) - 110} L120 ${groundY(120) - 80} L200 ${groundY(200) - 135} L280 ${groundY(280) - 90} L360 ${groundY(360) - 120} L360 ${H} L0 ${H} Z`, fill: C.mountain, opacity: 0.7 }, svg);
-  el('path', { d: `M0 ${f(groundY(0))} L${W} ${f(groundY(W))} L${W} ${H} L0 ${H} Z`, fill: C.snowTop, stroke: C.snowShade, 'stroke-width': 2 }, svg);
+  const ground = el('path', { d: `M0 ${f(groundY(0))} L${W} ${f(groundY(W))} L${W} ${H} L0 ${H} Z`, fill: C.snowTop, stroke: C.snowShade, 'stroke-width': 2 }, svg);
+
+  // Moguls: one bump per turn, its crest passes under the skier at the edge change.
+  const BUMP = 20;
+  const PERIOD = 170;
+  const bumpPhase = (x, s) => 2 * Math.PI * ((x - X0) / PERIOD + s - model.cross);
+  const bumpH = (x, s) => (model.bumps ? BUMP * 0.5 * (1 + Math.cos(bumpPhase(x, s))) : 0);
 
   // Moving snow marks on the slope surface
   const marks = [];
@@ -60,8 +66,8 @@ export function createSideView(model) {
   function render(st) {
     const speed = 120;
     marks.forEach((mk, i) => {
-      const x = mod(i * 47 - st.t * speed, W + 60) - 30;
-      set(mk, { cx: f(x), cy: f(groundY(x) + 6 + (i % 3) * 9), rx: f(6 + (i % 4) * 3), opacity: 0.6 });
+      const x = mod(i * 47 - st.dist * speed, W + 60) - 30;
+      set(mk, { cx: f(x), cy: f(groundY(x) + 6 + (i % 3) * 9 + (model.bumps ? 18 : 0)), rx: f(6 + (i % 4) * 3), opacity: 0.6 });
     });
 
     // Joint angles (rad) from flex and fore/aft balance
@@ -106,7 +112,16 @@ export function createSideView(model) {
     set(balance, { fill: col });
 
     // Up/down: the whole figure rises slightly when extending
-    set(fig, { transform: `translate(${X0} ${f(groundY(X0))}) rotate(${f(deg(slope))}) scale(0.92)` });
+    let lift = 0;
+    let tilt = 0;
+    if (model.bumps) {
+      let d = `M0 ${H}`;
+      for (let x = 0; x <= W; x += 6) d += ` L${x} ${f(groundY(x) - bumpH(x, st.s))}`;
+      ground.setAttribute('d', `${d} L${W} ${H} Z`);
+      lift = bumpH(X0, st.s);
+      tilt = Math.atan((-BUMP * Math.PI * Math.sin(bumpPhase(X0, st.s))) / PERIOD);
+    }
+    set(fig, { transform: `translate(${X0} ${f(groundY(X0) - lift)}) rotate(${f(deg(slope - tilt))}) scale(0.92)` });
     set(shadow, { rx: f(42 + fl * 6) });
     set(ski, { fill: C.ski });
   }
