@@ -47,7 +47,7 @@ export function createTurnModel(cfg) {
     const sw = k + c.warp(v); // progress along the path
     const sp = sw - c.cross;
     const sinv = Math.sin(Math.PI * sp);
-    const sign = Math.sign(sinv) || next;
+    const sign = c.side || Math.sign(sinv) || next; // `side` pins the edges to one side (traverse)
     const m = Math.abs(sinv);
     const ph = { v, sign, next, m };
 

@@ -5,5 +5,6 @@ import schwungausloesung from './schwungausloesung.js';
 import * as basics from './basics.js';
 import * as parallel from './parallel.js';
 import * as advanced from './advanced.js';
+import * as extra from './extra.js';
 
-export const scenes = { grundschwung, schwungausloesung, ...basics, ...parallel, ...advanced };
+export const scenes = { grundschwung, schwungausloesung, ...basics, ...parallel, ...advanced, ...extra };

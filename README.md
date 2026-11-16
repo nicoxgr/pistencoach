@@ -27,7 +27,7 @@ Der Fortschritt liegt nur auf dem Gerät (`localStorage`). Unter „Mehr“ läs
 | `js/anim/model.js` | Schwungmodell: Zeit → Zustand des Skifahrers (Spur, Kanten, Druck, Hoch-Tief, Stock) |
 | `js/anim/topdown.js`, `front.js`, `side.js` | Ansichten von oben, von hinten und von der Seite |
 | `js/anim/player.js` | Zeitleiste, Tempo, Ansichtswechsel, Richtig/Fehler, Legende, Schritte synchron |
-| `js/anim/scenes/` | Animationen: Phasenkurven, Fehlervariante, Schritte. `basics.js` (Stufe 1), `parallel.js` (Stufe 3) und `advanced.js` (Stufen 4 bis 7) bündeln mehrere Szenen |
+| `js/anim/scenes/` | Animationen: Phasenkurven, Fehlervariante, Schritte. `basics.js` (Stufe 1), `parallel.js` (Stufe 3) und `advanced.js` (Stufen 4 bis 7) und `extra.js` (Schrägfahrt, Seitrutschen, Bogen zum Hang, Linienwahl, Buckel, Eis) bündeln mehrere Szenen |
 | `data/lessons.js` | Stufen und Lektionen mit allen Texten |
 | `data/extras.js` | Problemfinder, Glossar, Tipps |
 
@@ -48,5 +48,5 @@ Icons: `icons/icon.svg` ist die Quelle. PNGs neu erzeugen mit `qlmanage -t -s 10
 
 ## Stand
 
-- Version 0.3.0: Oberfläche neu gestaltet, alle 23 Lektionen mit Inhalt, 17 davon mit Animation, dazu Problemfinder, Glossar, Tipp des Tages und Einstufung
-- Ohne Animation: 1.4 Schrägfahrt, 2.1 Seitrutschen, 2.2 Bogen zum Hang, 4.4 Linienwahl, 7.1 Buckelpiste, 7.3 Eis. Das Schwungmodell kennt bisher nur Kurvenfolgen und Geradeausfahrt, keine Querfahrt und kein Geländeprofil
+- Version 0.3.1: alle 23 Lektionen mit Inhalt und Animation, dazu Problemfinder, Glossar, Tipp des Tages und Einstufung
+- Vereinfachungen im Schwungmodell: Schrägfahrt und Seitrutschen gibt es nur in der Ansicht von hinten (`side` hält die Kanten auf einer Seite). Die Buckelpiste zeigt das Beugen und Strecken, aber kein Geländeprofil
