@@ -24,10 +24,10 @@ export default {
     angulation: () => 0.38,
   },
   variants: [
-    { id: 'right', label: '✓ Richtig', cfg: {} },
+    { id: 'right', label: 'Richtig', cfg: {} },
     {
       id: 'wrong',
-      label: '✗ Typischer Fehler',
+      label: 'Typischer Fehler',
       note: '<b>Steif und mit dem Oberkörper gedreht.</b> Ohne Hochkommen bleiben die Ski auf der Kante und der Kurvenwechsel kommt spät. Der Oberkörper dreht mit, die Ski rutschen quer und du landest in Rücklage.',
       cfg: {
         flex: () => 0.35,

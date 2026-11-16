@@ -1,7 +1,7 @@
 // Service worker: precache the whole app so it runs offline on the slope.
 // Bump CACHE with every release (keep in sync with js/version.js).
 
-const CACHE = 'pistencoach-0.2.0';
+const CACHE = 'pistencoach-0.3.0';
 const ASSETS = [
   './',
   'index.html',
@@ -14,6 +14,7 @@ const ASSETS = [
   'js/app.js',
   'js/store.js',
   'js/version.js',
+  'js/ui/motion.js',
   'js/views/common.js',
   'js/views/home.js',
   'js/views/level.js',
@@ -21,6 +22,7 @@ const ASSETS = [
   'js/views/coach.js',
   'js/views/problems.js',
   'js/views/more.js',
+  'js/views/extras.js',
   'js/anim/curves.js',
   'js/anim/svg.js',
   'js/anim/palette.js',
@@ -32,7 +34,11 @@ const ASSETS = [
   'js/anim/scenes/index.js',
   'js/anim/scenes/grundschwung.js',
   'js/anim/scenes/schwungausloesung.js',
+  'js/anim/scenes/basics.js',
+  'js/anim/scenes/parallel.js',
+  'js/anim/scenes/advanced.js',
   'data/lessons.js',
+  'data/extras.js',
 ];
 
 self.addEventListener('install', (e) => {

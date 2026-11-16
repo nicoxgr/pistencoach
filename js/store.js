@@ -8,7 +8,7 @@ export const STATUS = ['open', 'practicing', 'done'];
 let data = load();
 
 function empty() {
-  return { version: VERSION, lessons: {}, onboardingDone: false };
+  return { version: VERSION, lessons: {}, onboardingDone: false, theme: 'auto' };
 }
 
 function load() {
@@ -43,6 +43,30 @@ export function setNote(id, note) {
   save();
 }
 
+export const getChecks = (id) => data.lessons[id]?.checks || [];
+
+export function toggleCheck(id, i) {
+  const set = new Set(getChecks(id));
+  if (set.has(i)) set.delete(i);
+  else set.add(i);
+  data.lessons[id] = { ...data.lessons[id], checks: [...set].sort(), updatedAt: new Date().toISOString() };
+  save();
+  return set.has(i);
+}
+
+export const hasProgress = () => Object.values(data.lessons).some((l) => (l.status && l.status !== 'open') || l.note);
+export const onboardingDone = () => data.onboardingDone;
+export function setOnboardingDone() {
+  data.onboardingDone = true;
+  save();
+}
+
+export const getTheme = () => data.theme || 'auto';
+export function setTheme(theme) {
+  data.theme = theme;
+  save();
+}
+
 export function exportJson() {
   return JSON.stringify(data, null, 2);
 }
@@ -55,6 +79,6 @@ export function importJson(text) {
 }
 
 export function reset() {
-  data = empty();
+  data = { ...empty(), theme: getTheme() };
   save();
 }

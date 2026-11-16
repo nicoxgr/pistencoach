@@ -22,10 +22,10 @@ export default {
     skid: () => 0.24,
   },
   variants: [
-    { id: 'right', label: '✓ Richtig', cfg: {} },
+    { id: 'right', label: 'Richtig', cfg: {} },
     {
       id: 'wrong',
-      label: '✗ Typischer Fehler',
+      label: 'Typischer Fehler',
       note: '<b>Die Ski bleiben im Pflug.</b> Der Druck ist auf beide Ski gleich verteilt und du sitzt hinten. Der Innenski bleibt auf der Kante und lässt sich nicht beidrehen.',
       cfg: {
         splay: () => 0.3,

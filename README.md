@@ -20,29 +20,33 @@ Der Fortschritt liegt nur auf dem Gerät (`localStorage`). Unter „Mehr“ läs
 
 | Pfad | Inhalt |
 |---|---|
-| `js/app.js` | Hash-Router, Topbar, Tabbar, Service-Worker-Updates |
-| `js/store.js` | Fortschritt und Notizen in `localStorage` |
-| `js/views/` | Bildschirme: Lernpfad, Stufe, Lektion, Coach, Probleme, Mehr |
+| `js/app.js` | Hash-Router mit Übergängen je Richtung, Topbar, Tabbar, Service-Worker-Updates |
+| `js/ui/motion.js` | Bewegung in der Oberfläche: gestaffeltes Einblenden, Zähler, Akkordeons, Segment-Schalter, Schnee-Burst |
+| `js/store.js` | Fortschritt, Häkchen, Notizen und Darstellung in `localStorage` |
+| `js/views/` | Bildschirme: Lernpfad, Stufe, Lektion, Coach, Probleme, Mehr, Glossar, Einstufung |
 | `js/anim/model.js` | Schwungmodell: Zeit → Zustand des Skifahrers (Spur, Kanten, Druck, Hoch-Tief, Stock) |
 | `js/anim/topdown.js`, `front.js`, `side.js` | Ansichten von oben, von hinten und von der Seite |
-| `js/anim/player.js` | Zeitleiste, Tempo, Ansichtswechsel, Richtig/Fehler, Schritte synchron |
-| `js/anim/scenes/` | eine Datei pro Animation: Phasenkurven, Fehlervariante, Schritte |
+| `js/anim/player.js` | Zeitleiste, Tempo, Ansichtswechsel, Richtig/Fehler, Legende, Schritte synchron |
+| `js/anim/scenes/` | Animationen: Phasenkurven, Fehlervariante, Schritte. `basics.js` (Stufe 1), `parallel.js` (Stufe 3) und `advanced.js` (Stufen 4 bis 7) bündeln mehrere Szenen |
 | `data/lessons.js` | Stufen und Lektionen mit allen Texten |
+| `data/extras.js` | Problemfinder, Glossar, Tipps |
 
 ## Neue Animation anlegen
 
-1. Szene in `js/anim/scenes/<id>.js` anlegen. Bewegung über Phasenfunktionen (`splay`, `flex`, `outer`, `torso`, `skid`, `pole`, `fore`) mit `keys()` und `win()` aus `curves.js` beschreiben.
-2. Szene in `js/anim/scenes/index.js` registrieren.
+1. Szene in `js/anim/scenes/` anlegen, als eigene Datei oder als weiteren Export in einer der Sammeldateien. Bewegung über Phasenfunktionen (`splay`, `flex`, `outer`, `torso`, `skid`, `pole`, `fore`) mit `keys()` und `win()` aus `curves.js` beschreiben. `warp` verändert das Tempo entlang der Spur, `amp: 0` ergibt eine Geradeausfahrt.
+2. Eigene Dateien in `js/anim/scenes/index.js` registrieren. Exporte der Sammeldateien sind automatisch dabei.
 3. In `data/lessons.js` bei der Lektion `scene: '<id>'` setzen.
-4. Datei in `ASSETS` in `sw.js` eintragen.
+4. Neue Dateien in `ASSETS` in `sw.js` eintragen.
 
 ## Release
 
 `CACHE` in `sw.js` und `APP_VERSION` in `js/version.js` gemeinsam hochzählen. Installierte Apps zeigen dann „Neue Version verfügbar“.
 
-Lokal testen: `python3 -m http.server` im Projektordner, dann `http://localhost:8000`.
+Lokal testen: `python3 -m http.server` im Projektordner, dann `http://localhost:8000`. Auf `localhost` registriert die App keinen Service Worker, Änderungen sind also sofort sichtbar.
+
+Icons: `icons/icon.svg` ist die Quelle. PNGs neu erzeugen mit `qlmanage -t -s 1024 -o /tmp icons/icon.svg` und `sips -z <Größe> <Größe>`.
 
 ## Stand
 
-- Phase 1 und 2 fertig: Gerüst, PWA, Animations-Engine, Lektionen 2.3 und 3.2 komplett
-- Offen: Texte und Animationen der übrigen Lektionen, Einstufung, Tipp des Tages, Problemfinder, Glossar
+- Version 0.3.0: Oberfläche neu gestaltet, alle 23 Lektionen mit Inhalt, 17 davon mit Animation, dazu Problemfinder, Glossar, Tipp des Tages und Einstufung
+- Ohne Animation: 1.4 Schrägfahrt, 2.1 Seitrutschen, 2.2 Bogen zum Hang, 4.4 Linienwahl, 7.1 Buckelpiste, 7.3 Eis. Das Schwungmodell kennt bisher nur Kurvenfolgen und Geradeausfahrt, keine Querfahrt und kein Geländeprofil

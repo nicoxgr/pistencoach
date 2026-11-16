@@ -29,6 +29,7 @@ const defaults = {
   skid: () => 0.12, // ski angle vs. travel direction (rad)
   pole: () => 0, // pole plant amount 0..1
   fore: () => 0, // fore/aft balance, negative = back seat
+  warp: (v) => v, // remaps the phase to path progress (speed changes); warp(0) = 0, warp(1) = 1
   angulation: () => 0.35, // share of lean the upper body takes back
   slope: 14, // slope angle (deg) for the side view
   piste: 'blue',
@@ -43,14 +44,15 @@ export function createTurnModel(cfg) {
     const k = Math.floor(s);
     const v = s - k;
     const next = mod(k, 2) === 0 ? 1 : -1;
-    const sp = s - c.cross;
+    const sw = k + c.warp(v); // progress along the path
+    const sp = sw - c.cross;
     const sinv = Math.sin(Math.PI * sp);
     const sign = Math.sign(sinv) || next;
     const m = Math.abs(sinv);
     const ph = { v, sign, next, m };
 
     const x = c.amp * sinv;
-    const y = c.len * s;
+    const y = c.len * sw;
     const heading = Math.atan2(c.len, c.amp * Math.PI * Math.cos(Math.PI * sp));
 
     const lean = sign * c.leanMax * Math.pow(m, c.edgeShape) * c.lean(ph);

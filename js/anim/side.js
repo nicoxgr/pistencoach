@@ -102,7 +102,7 @@ export function createSideView(model) {
     set(com, { cx: f(cm[0]), cy: f(cm[1]), fill: col });
     set(plumb, { x1: f(cm[0]), y1: f(cm[1] + 6), x2: f(cm[0]), y2: -3, stroke: col });
     set(plumbDot, { cx: f(cm[0]), cy: -3, fill: col });
-    balance.textContent = ok ? 'Schwerpunkt über dem Fuß' : back ? 'Rücklage: Schwerpunkt zu weit hinten' : 'Zu weit vorne';
+    balance.textContent = ok ? 'Schwerpunkt über dem Fuß' : back ? 'Rücklage: Schwerpunkt hinten' : 'Zu weit vorne';
     set(balance, { fill: col });
 
     // Up/down: the whole figure rises slightly when extending
