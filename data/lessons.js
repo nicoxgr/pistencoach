@@ -265,18 +265,21 @@ export const levels = [
         feel: 'Der Kurvenwechsel fühlt sich leicht an, fast schwebend.',
         focus: [
           'Hochkommen nimmt Druck von den Ski. Dann lassen sie sich leicht umkanten und drehen.',
-          'Beide Ski kanten gleichzeitig um, nicht nacheinander.',
+          'Beide Ski kanten gleichzeitig um, nicht nacheinander. Auch der Innenski kippt auf seine Kante, er wird nicht bloß angehoben.',
           'Nach dem Umkanten gehst du wieder tiefer und belastest den neuen Außenski.',
         ],
         mistakes: [
           m('Steif auf einer Höhe', 'Ohne Hoch und Tief bleiben die Ski auf der alten Kante kleben. Die Kurve startet zäh oder mit Pflug.', 'Beim Kurvenwechsel bewusst „hoch“, in der Kurve „tief“. Am Anfang ruhig übertreiben.'),
           m('Oberkörper dreht die Kurve', 'Schultern reißen die Ski herum, die Ski rutschen quer und das Tempo ist schwer zu kontrollieren.', 'Die Beine drehen unter einem ruhigen Oberkörper. Brust und Blick zeigen eher ins Tal.'),
           m('Aufrichten nach hinten', 'Beim Hochkommen kippt die Hüfte zurück, du landest in Rücklage.', 'Nach vorne oben aufrichten, Richtung Skispitzen. Hände bleiben vorne.'),
+          m('Innenski nur entlastet, nicht gekantet', 'Nur der Außenski steht auf der Kante. Der Innenski wird angehoben oder liegt flach und läuft der Kurve hinterher. Du musst ihn ständig bewusst parallel halten, und auf steileren Pisten kommt der Pflug zurück.', 'Beide Knie kippen zur selben Seite. Der Innenski geht auf seine Kleinzehenkante und trägt 20 bis 30 % des Gewichts. Das Gefühl kennst du vom Bergski in der Schrägfahrt.'),
         ],
         drills: [
           'Im Stand üben: tief, hoch, tief. Dann in der Fahrt laut „hoch, um, tief“ sagen.',
           'Girlanden: In der Schrägfahrt mehrmals kurz hochkommen und die Ski leicht bergwärts drehen, ohne die ganze Kurve zu fahren.',
           'Stockeinsatz als Startsignal: Stock tippen heißt hochkommen und umkanten.',
+          'Schienen-Übung: auf flacher Piste fast geradeaus fahren und beide Ski nur leicht von Kante zu Kante kippen. Ziel sind zwei gleiche, schmale Spuren.',
+          'Innenfuß führt: Denk beim Umkanten zuerst an die Kleinzehenkante des neuen Innenskis. Der Außenski folgt von selbst.',
         ],
         checks: ['Beide Ski kanten gleichzeitig um, ohne dass sich ein Pflug bildet.', 'Auf Blau fährst du 10 Kurven am Stück parallel.', 'Das Hoch und Tief fühlt sich wie ein ruhiger Rhythmus an.'],
         cues: ['Hoch, um, tief', 'Beide Ski gleichzeitig', 'Nach vorne aufrichten'],

@@ -15,7 +15,7 @@ const item = (p) => `
     <div class="acc-body"><div class="acc-pad">
       <p><span class="lbl">Ursache</span>${esc(p.cause)}</p>
       <p><span class="lbl good">Sofort-Tipp</span>${esc(p.tip)}</p>
-      <p><span class="lbl neutral">Übung</span>${esc(p.drill)}</p>
+      ${p.drills ? `<p><span class="lbl neutral">Übungen</span></p><ol class="drills">${p.drills.map((d) => `<li>${esc(d)}</li>`).join('')}</ol>` : `<p><span class="lbl neutral">Übung</span>${esc(p.drill)}</p>`}
       <div class="link-list">
         ${p.lessons
           .map((id) => findLesson(id))

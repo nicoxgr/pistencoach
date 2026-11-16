@@ -4,6 +4,20 @@ export const problemCats = ['Alle', 'Tempo', 'Kurve', 'Balance', 'Kopf', 'Schnee
 
 export const problems = [
   {
+    id: 'parallel-zwingen',
+    cat: 'Kurve',
+    title: 'Ich muss mich zwingen, parallel zu bleiben',
+    cause: 'Du kantest in der Kurve nur den Außenski richtig auf. Den Innenski entlastest oder hebst du bloß, er bleibt flach und läuft der Kurve hinterher. Deshalb musst du ihn ständig bewusst parallel halten. Auf Blau geht das mit Konzentration, auf Rot fällst du in den Pflug zurück.',
+    tip: 'Beide Knie kippen zur selben Seite. Der Innenski geht auf seine Kleinzehenkante und trägt 20 bis 30 % des Gewichts, statt angehoben zu werden.',
+    drills: [
+      'Schrägfahrt auf dem Bergski: den Talski kurz anheben und auf der Kleinzehenkante des Bergskis weiterfahren. Genau so fühlt sich der Innenski in der Kurve an.',
+      'Schienen-Übung: auf flacher Piste fast geradeaus fahren und beide Ski nur leicht von Kante zu Kante kippen. Ziel sind zwei gleiche, schmale Spuren.',
+      'Innenfuß führt: Denk beim Umkanten zuerst an die Kleinzehenkante des neuen Innenskis.',
+      'Bogen zum Hang: beide Knie zum Hang drücken und danach das Spurbild prüfen. Beide Linien sollen gleich scharf sein.',
+    ],
+    lessons: ['3.2', '1.4', '2.2'],
+  },
+  {
     id: 'zu-schnell',
     cat: 'Tempo',
     title: 'Ich werde auf Rot zu schnell',
@@ -121,9 +135,11 @@ export const glossary = [
   ['Driften', 'Der Ski rutscht in der Kurve dosiert seitlich. Das bremst und macht die Kurve enger.'],
   ['Entlasten', 'Den Druck kurz vom Ski nehmen, meist durch Aufrichten. Ein entlasteter Ski lässt sich leicht drehen und umkanten.'],
   ['Falllinie', 'Die direkte Linie talwärts, also der Weg, den ein Ball den Hang hinunterrollen würde.'],
+  ['Großzehenkante', 'Die Kante des Skis auf der Seite der großen Zehe, also die Innenkante. Auf ihr steht der Außenski in der Kurve.'],
   ['Hüftknick', 'Die Hüfte geht in die Kurve, der Oberkörper bleibt aufrecht über dem Außenski. Hält den Druck außen.'],
   ['Innenski', 'Der Ski, der in der Kurve innen liegt. Er wird mitgeführt und trägt weniger.'],
   ['Kantengriff', 'Der Moment, in dem die Kante im Schnee Halt findet. Im Kurzschwung bremst er und gibt den Abdruck.'],
+  ['Kleinzehenkante', 'Die Kante des Skis auf der Seite der kleinen Zehe, also die Außenkante. Auf ihr steht der Innenski in der Kurve und der Bergski in der Schrägfahrt.'],
   ['Kurvenlage', 'Die Neigung des Körpers in die Kurve, um die Fliehkraft auszugleichen.'],
   ['Kurzschwung', 'Kurze, rhythmische Schwünge nahe der Falllinie mit ruhigem Oberkörper.'],
   ['Pflug', 'Skispitzen zusammen, Skienden auseinander. Beide Ski stehen auf den Innenkanten und bremsen.'],

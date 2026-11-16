@@ -157,7 +157,7 @@ export function createPlayer(scene) {
 
   // Right / wrong toggle
   scene.variants.forEach((v, i) => {
-    const bad = v.id === 'wrong';
+    const bad = v.id !== 'right';
     const b = h('button', bad ? 'bad' : 'good', `${icon(bad ? 'x' : 'check')}${v.label}`);
     b.type = 'button';
     b.setAttribute('aria-pressed', 'false');
@@ -180,6 +180,7 @@ export function createPlayer(scene) {
     varSeg.append(b);
   });
   setSeg(varSeg, 0);
+  varSeg.classList.toggle('many', scene.variants.length > 2);
   note.hidden = true;
 
   // Steps

@@ -351,6 +351,9 @@ button { cursor: pointer; }
 .seg button .ic { width: 16px; height: 16px; stroke-width: 2.8; }
 .seg button.on { color: var(--text); }
 .seg-variant button.good.on { color: var(--good); }
+.seg-variant.many button { font-size: 0.8125rem; line-height: 1.15; text-align: center; padding: 4px 4px; }
+.seg-variant.many button .ic { display: none; }
+.variant-note .lbl { margin-top: 8px; }
 .seg-variant button.bad.on { color: var(--bad); }
 .seg-status[data-value="practicing"]::before { background: var(--warn); }
 .seg-status[data-value="practicing"] button.on { color: #2a1900; }
@@ -460,12 +463,13 @@ details.acc[open]:not(.closing) .acc-chev { transform: rotate(180deg); }
 .stage.wrong .step-chip b { background: var(--red); color: #fff; }
 .stage.wrong .variant-badge { display: none; animation: enter 0.3s var(--ease); --dx: 0px; --dy: -6px; }
 .stage-play {
-  position: absolute; left: 50%; top: 50%; width: 68px; height: 68px; margin: -34px 0 0 -34px;
-  border: 0; border-radius: 50%; background: rgb(13 30 50 / 78%); color: #fff;
+  /* In the corner, so a paused frame can be studied without anything on the skier. */
+  position: absolute; right: 10px; top: 10px; width: 52px; height: 52px;
+  border: 0; border-radius: 50%; background: rgb(13 30 50 / 82%); color: #fff;
   display: grid; place-items: center; opacity: 0; pointer-events: none; transform: scale(0.8);
   transition: opacity 0.2s, transform 0.25s var(--spring);
 }
-.stage-play .ic { width: 30px; height: 30px; margin-left: 3px; }
+.stage-play .ic { width: 24px; height: 24px; margin-left: 2px; }
 .stage.paused .stage-play { opacity: 1; pointer-events: auto; transform: none; }
 .controls { display: flex; align-items: center; gap: 12px; padding: 0 2px; }
 .controls .play, .controls .speed { flex: none; height: 46px; border-radius: 14px; border: 0; font-weight: 750; transition: transform 0.15s var(--ease), background 0.2s, color 0.2s; }

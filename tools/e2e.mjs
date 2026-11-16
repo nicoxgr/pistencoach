@@ -175,11 +175,19 @@ async function suite(browser, device) {
       await page.waitForTimeout(450);
       const b = await page.locator('.scrub').inputValue();
       ok(`${where} animation runs`, a !== b, `${a} -> ${b}`);
-      await page.locator('.seg-variant .bad').click();
-      await page.waitForTimeout(200);
-      ok(`${where} mistake shows its note`, await page.locator('.variant-note').isVisible());
-      ok(`${where} mistake hides the steps`, await page.locator('.steps').isHidden());
-      ok(`${where} mistake names itself`, (await page.locator('.step-chip').textContent()).length > 3);
+      const bad = page.locator('.seg-variant .bad');
+      for (let i = 0; i < (await bad.count()); i++) {
+        await bad.nth(i).click();
+        await page.waitForTimeout(200);
+        ok(`${where} mistake ${i} shows its note`, await page.locator('.variant-note').isVisible());
+        ok(`${where} mistake ${i} hides the steps`, await page.locator('.steps').isHidden());
+        ok(`${where} mistake ${i} names itself`, (await page.locator('.step-chip').textContent()).length > 3);
+        ok(`${where} mistake ${i} keeps drawing`, (await page.locator('.stage svg.scene *').count()) > 10);
+      }
+      if (id === '3.2') {
+        ok('3.2 has the flat inside ski as second mistake', (await bad.count()) === 2 && (await page.locator('.variant-note').textContent()).includes('Kleinzehenkante'));
+        await audit(page, 'lesson 3.2 with three variants');
+      }
       await page.locator('.seg-variant .good').click();
       await page.waitForTimeout(150);
       ok(`${where} steps return`, await page.locator('.steps').isVisible());
@@ -324,6 +332,11 @@ async function suite(browser, device) {
     ok('another tip appears', (await page.locator('[data-tip]').textContent()) !== tip);
     await shot(page, 'coach');
     await go(page, '/probleme');
+    ok('the parallel problem comes first', (await page.locator('.problem .acc-title').first().textContent()).includes('parallel zu bleiben'));
+    await page.locator('.problem summary').first().click();
+    await page.waitForTimeout(600);
+    ok('it lists four drills and links to 3.2', (await page.locator('.problem[open] .drills li').count()) === 4 && (await page.locator('.problem[open] .link-row').first().getAttribute('href')) === '#/lektion/3.2');
+    await audit(page, 'problem with drills');
     await page.locator('[data-cat="Tempo"]').click();
     await page.waitForTimeout(300);
     ok('problems filter by category', (await page.locator('.problem').count()) === 2);

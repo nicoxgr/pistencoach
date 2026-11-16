@@ -113,7 +113,8 @@ export function createFrontView(model) {
     const hf = 1 - st.flex * 0.32; // projected height factor from behind
     const lean = st.lean;
     const torsoLean = lean * (1 - st.angulation);
-    const feet = [[cx - w / 2, gy(cx - w / 2)], [cx + w / 2, gy(cx + w / 2)]];
+    // A lifted ski hangs a little above the snow.
+    const feet = [[cx - w / 2, gy(cx - w / 2) - st.liftL * 8], [cx + w / 2, gy(cx + w / 2) - st.liftR * 8]];
     const edges = [st.edgeL, st.edgeR];
 
     set(shadow, { cx: f(cx), cy: f(G + 6), rx: f(40 + w / 2), transform: `rotate(${f(deg(gamma))} ${f(cx)} ${G + 6})` });
@@ -126,7 +127,8 @@ export function createFrontView(model) {
       const sk = skis[i];
       const y = p[1];
       // Tips converge in a snowplough but never touch.
-      const tipX = p[0] - side * Math.min(Math.abs(st.splay) * 70, Math.max(0, w / 2 - 13)) + st.lean * 10;
+      const turnIn = Math.abs(st.splay) + (i === 0 ? st.yawL : st.yawR); // snowplough or a ski drifting off line
+      const tipX = p[0] - side * Math.min(turnIn * 70, Math.max(0, w / 2 - 13)) + st.lean * 10;
       const tipY = gy(tipX) - 44;
       const hw = 10;
       const dx = Math.cos(a) * hw;

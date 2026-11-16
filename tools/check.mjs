@@ -26,7 +26,7 @@ for (const m of modules) {
 const { scenes } = await import(root + 'js/anim/scenes/index.js');
 const { createTurnModel } = await import(root + 'js/anim/model.js');
 const { allLessons } = await import(root + 'data/lessons.js');
-const keys = ['x', 'y', 'heading', 'lean', 'flex', 'pL', 'torso', 'skiHeading', 'dist', 'fore', 'width', 'splay'];
+const keys = ['x', 'y', 'heading', 'lean', 'flex', 'pL', 'torso', 'skiHeading', 'dist', 'fore', 'width', 'splay', 'edgeL', 'edgeR', 'yawL', 'yawR', 'liftL', 'liftR'];
 let states = 0;
 for (const sc of Object.values(scenes)) {
   for (const v of sc.variants) {

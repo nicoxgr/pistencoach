@@ -65,12 +65,13 @@ Icons: `icons/icon.svg` ist die Quelle. PNGs neu erzeugen mit `qlmanage -t -s 10
 
 ## Stand
 
-- Version 0.5.0: alle 23 Lektionen mit Inhalt und Animation, dazu Problemfinder, Glossar, Tipp des Tages, Einstufung, Verlauf und Pistenmodus
+- Version 0.5.1: alle 23 Lektionen mit Inhalt und Animation, dazu Problemfinder, Glossar, Tipp des Tages, Einstufung, Verlauf und Pistenmodus
 - Pistenmodus (`#/piste/<id>`): ein Gedanke pro Bildschirm, große Schrift, große Tasten, am Ende die Statusabfrage. Hält den Bildschirm wach, wo der Browser es erlaubt
 - Player mit Vollbild als Überlagerung, im Querformat liegen Bild und Bedienung nebeneinander
 - Verlauf: jede Statusänderung wird mit Datum gespeichert (`log` im Fortschritt, höchstens 500 Einträge)
 - Bedienhilfen: Schriftgrößen in `rem`, unter iOS folgt die App der Textgröße aus den Einstellungen (bis 22 px Grundgröße), Kontraste nach WCAG AA, Fokus springt beim Seitenwechsel auf den Inhalt, Statuswahl per Pfeiltasten
 - Das Schwungmodell kennt Kurvenfolgen, Geradeausfahrt, Querfahrt (`traverse`), seitliches Rutschen (`slip`) und Buckel (`bumps`). Die Ansicht von hinten neigt die Schneefläche je nach Fahrtrichtung, alle Ansichten folgen dem Tempo (`warp`)
 - Glossarbegriffe in den Lektionstexten sind antippbar und öffnen die Erklärung (`linkTerms` in `js/views/common.js`, `js/ui/sheet.js`)
+- Eine Szene kann mehrere Fehlerbilder haben (jede Variante außer `right` gilt als Fehler). Lektion 3.2 zeigt neben „steif und gedreht“ den flach liegenden Innenski: `innerEdge`, `innerYaw`, `innerLift` und `innerSmear` steuern den Innenski getrennt vom Außenski
 - Beim Fehlerbild blendet der Player die Schritte aus, weil sie die richtige Ausführung beschreiben. Eine Variante kann eigene `steps` mitbringen
 - Offen: Die Fachtexte sind nur stichprobenhaft gegen Quellen geprüft. Ein Test auf einem echten iPhone steht aus

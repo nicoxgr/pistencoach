@@ -29,6 +29,9 @@ const defaults = {
   skid: () => 0.12, // ski angle vs. travel direction (rad)
   pole: () => 0, // pole plant amount 0..1
   fore: () => 0, // fore/aft balance, negative = back seat
+  innerEdge: () => 1, // share of the edge angle the inside ski takes (0 = flat on the snow)
+  innerYaw: () => 0, // inside ski lagging behind the turn, tip towards the outside ski (rad)
+  innerLift: () => 0, // inside ski lifted off the snow, 0..1
   warp: (v) => v, // remaps the phase to path progress (speed changes); warp(0) = 0, warp(1) = 1
   angulation: () => 0.35, // share of lean the upper body takes back
   slope: 14, // slope angle (deg) for the side view
@@ -65,8 +68,13 @@ export function createTurnModel(cfg) {
 
     const lean = sign * c.leanMax * Math.pow(m, c.edgeShape) * c.lean(ph);
     const splay = c.splay(ph);
-    const edgeL = lean + splay * 1.1;
-    const edgeR = lean - splay * 1.1;
+    // The inside ski can be edged less than the outside ski, drift and lift.
+    const innerRight = sign > 0; // turning right: the right ski is inside
+    const ie = c.innerEdge(ph);
+    const iy = c.innerYaw(ph) * m;
+    const il = c.innerLift(ph) * m;
+    const edgeL = lean * (innerRight ? 1 : ie) + splay * 1.1;
+    const edgeR = lean * (innerRight ? ie : 1) - splay * 1.1;
 
     const outer = c.outer(ph);
     const pL = sign > 0 ? outer : 1 - outer; // turning right: left ski is outside
@@ -80,6 +88,8 @@ export function createTurnModel(cfg) {
       t, s, v, k, x, y, heading, sign, m,
       dist: sw * c.turnTime, // time-like distance, follows speed changes
       lean, splay, edgeL, edgeR,
+      yawL: innerRight ? 0 : iy, yawR: innerRight ? iy : 0,
+      liftL: innerRight ? 0 : il, liftR: innerRight ? il : 0,
       width: c.width(ph),
       flex: c.flex(ph),
       pL, pR: 1 - pL,

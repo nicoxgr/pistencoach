@@ -79,6 +79,8 @@ export function createTopView(model) {
 
   const ahead = el('polyline', { fill: 'none', stroke: C.ahead, 'stroke-width': 2, 'stroke-dasharray': '2 7', 'stroke-linecap': 'round', opacity: 0.7 }, svg);
   const band = [0, 1].map(() => el('polyline', { fill: 'none', stroke: C.trailBand, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: 0.8 }, svg));
+  // Smeared track of an inside ski that lies flat instead of holding an edge
+  const smear = el('path', { fill: 'none', stroke: C.trailBand, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: 0.85 }, svg);
   const line = [0, 1].map(() => el('polyline', { fill: 'none', stroke: C.trailLine, 'stroke-width': 1.6, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, svg));
   const marks = el('g', {}, svg);
 
@@ -139,18 +141,33 @@ export function createTopView(model) {
     // Trail and upcoming line
     const L = [];
     const R = [];
+    const inner = []; // per sample: which ski was inside (0 = left, 1 = right)
     for (let t = st.t - trailTime; t <= st.t + 1e-6; t += STEP) {
       const s = model.state(t);
       const [pl, pr] = skiPositions(s);
       L.push([pl[0], sy(pl[1])]);
       R.push([pr[0], sy(pr[1])]);
+      inner.push(s.sign > 0 ? 1 : 0);
     }
     const [cl, cr] = skiPositions(st);
     L.push([cl[0], sy(cl[1])]);
     R.push([cr[0], sy(cr[1])]);
+    inner.push(st.sign > 0 ? 1 : 0);
     const bw = model.slip ? SKI_L * 0.9 : 3 + clamp(model.trailSkid ?? 0.4) * 12;
     band.forEach((b, i) => set(b, { points: pts(i ? R : L), 'stroke-width': f(bw) }));
     line.forEach((b, i) => set(b, { points: pts(i ? R : L) }));
+
+    // Only the stretches where a ski was the inside ski are smeared.
+    if (model.innerSmear) {
+      let d = '';
+      let open = -1;
+      inner.forEach((side, j) => {
+        const p = (side ? R : L)[j];
+        d += `${open === side ? 'L' : 'M'}${f(p[0])} ${f(p[1])}`;
+        open = side;
+      });
+      set(smear, { d, 'stroke-width': f(4 + model.innerSmear * 12) });
+    }
 
     const A = [];
     for (let t = st.t; t <= st.t + aheadTime; t += STEP) {
@@ -182,7 +199,7 @@ export function createTopView(model) {
     const press = [st.pL, st.pR];
     [pl, pr].forEach((p, i) => {
       const side = i === 0 ? -1 : 1;
-      const a = st.skiHeading - side * st.splay; // tips point inwards in a snowplough
+      const a = st.skiHeading - side * (st.splay + (i === 0 ? st.yawL : st.yawR)); // tips point inwards in a snowplough
       const sk = skis[i];
       set(sk.g, { transform: `translate(${f(p[0])} ${f(sy(p[1]))}) rotate(${f(deg(a))})` });
       set(sk.body, { fill: mix(C.ski, C.skiPress, clamp((press[i] - 0.35) / 0.5)) });
