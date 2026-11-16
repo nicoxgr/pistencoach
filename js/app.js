@@ -97,8 +97,14 @@ render();
 // local changes show up without clearing the cache.
 const local = ['localhost', '127.0.0.1'].includes(location.hostname);
 if ('serviceWorker' in navigator && location.protocol !== 'file:' && !local) {
-  navigator.serviceWorker.register('sw.js').then((reg) => {
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then((reg) => {
     const offer = (worker) => {
+      // Right after launch the new version takes over silently. Later it asks,
+      // so a reload never interrupts someone in the middle of a lesson.
+      if (performance.now() < 5000) {
+        worker.postMessage('skipWaiting');
+        return;
+      }
       const toast = document.getElementById('toast');
       toast.hidden = false;
       toast.querySelector('button').onclick = () => worker.postMessage('skipWaiting');
@@ -109,6 +115,14 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:' && !local) {
       w.addEventListener('statechange', () => {
         if (w.state === 'installed' && navigator.serviceWorker.controller) offer(w);
       });
+    });
+    // An installed app on iOS is resumed, not reloaded, so it would never look
+    // for updates on its own. Check whenever it comes back to the foreground.
+    let lastCheck = Date.now();
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState !== 'visible' || Date.now() - lastCheck < 60000) return;
+      lastCheck = Date.now();
+      reg.update().catch(() => {});
     });
   });
   let reloaded = false;

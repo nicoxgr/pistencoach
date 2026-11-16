@@ -1,7 +1,7 @@
 // Service worker: precache the whole app so it runs offline on the slope.
 // Bump CACHE with every release (keep in sync with js/version.js).
 
-const CACHE = 'pistencoach-0.3.1';
+const CACHE = 'pistencoach-0.3.2';
 const ASSETS = [
   './',
   'index.html',
@@ -43,7 +43,9 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
+  // cache: 'reload' bypasses the HTTP cache. GitHub Pages lets browsers keep
+  // files for 10 minutes, which would otherwise put stale files into a new cache.
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS.map((url) => new Request(url, { cache: 'reload' })))));
 });
 
 self.addEventListener('activate', (e) => {

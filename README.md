@@ -40,7 +40,7 @@ Der Fortschritt liegt nur auf dem Gerät (`localStorage`). Unter „Mehr“ läs
 
 ## Release
 
-`CACHE` in `sw.js` und `APP_VERSION` in `js/version.js` gemeinsam hochzählen. Installierte Apps zeigen dann „Neue Version verfügbar“.
+`CACHE` in `sw.js` und `APP_VERSION` in `js/version.js` gemeinsam hochzählen. Installierte Apps zeigen dann „Neue Version verfügbar“. Die App sucht beim Start und bei jeder Rückkehr in den Vordergrund nach Updates. Direkt nach dem Start übernimmt sie die neue Version von selbst, später fragt sie per Hinweis.
 
 Lokal testen: `python3 -m http.server` im Projektordner, dann `http://localhost:8000`. Auf `localhost` registriert die App keinen Service Worker, Änderungen sind also sofort sichtbar.
 
@@ -48,5 +48,5 @@ Icons: `icons/icon.svg` ist die Quelle. PNGs neu erzeugen mit `qlmanage -t -s 10
 
 ## Stand
 
-- Version 0.3.1: alle 23 Lektionen mit Inhalt und Animation, dazu Problemfinder, Glossar, Tipp des Tages und Einstufung
+- Version 0.3.2: alle 23 Lektionen mit Inhalt und Animation, dazu Problemfinder, Glossar, Tipp des Tages und Einstufung
 - Vereinfachungen im Schwungmodell: Schrägfahrt und Seitrutschen gibt es nur in der Ansicht von hinten (`side` hält die Kanten auf einer Seite). Die Buckelpiste zeigt das Beugen und Strecken, aber kein Geländeprofil
