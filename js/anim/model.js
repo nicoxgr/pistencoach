@@ -53,7 +53,8 @@ export function createTurnModel(cfg) {
 
     const x = c.amp * sinv;
     const y = c.len * sw;
-    const heading = Math.atan2(c.len, c.amp * Math.PI * Math.cos(Math.PI * sp));
+    // `traverse` (rad off the fall line) fixes the heading for runs across the hill.
+    const heading = c.traverse ? FALL_LINE + (c.side || 1) * c.traverse : Math.atan2(c.len, c.amp * Math.PI * Math.cos(Math.PI * sp));
 
     const lean = sign * c.leanMax * Math.pow(m, c.edgeShape) * c.lean(ph);
     const splay = c.splay(ph);

@@ -12,7 +12,7 @@ const pressure = ({ v }) => keys(v, [[0, 0.66], [0.12, 0.5], [0.3, 0.72], [0.62,
 const slowAcross = (a) => (v) => v - (a * Math.sin(2 * Math.PI * v)) / (2 * Math.PI);
 
 // Across the hill: the hill is on the right, the left ski is the downhill ski.
-const across = { amp: 0, side: 1, edgeShape: 0, skid: () => 0, torso: () => 0, piste: 'green', slope: 9, trailSkid: 0.1, width: () => 22 };
+const across = { amp: 0, side: 1, traverse: 1.3, edgeShape: 0, skid: () => 0, torso: () => 0, piste: 'green', slope: 16, trailSkid: 0.1, width: () => 22 };
 
 export const schraegfahrt = {
   id: 'schraegfahrt',

@@ -61,10 +61,11 @@ export function createTopView(model) {
   const tileUses = [-1, 0, 1].map((j) => el('use', { href: `#${tile.id}`, y: j * T }, tileWrap));
 
   // Fall line hint
-  const hint = el('g', { transform: `translate(${W - 74} ${H - 44})`, opacity: 0.75 }, svg);
+  const hint = el('g', { transform: `translate(${W - 92} ${H - 46})`, opacity: 0.75 }, svg);
   el('line', { x1: 0, y1: 0, x2: 0, y2: 26, stroke: C.text, 'stroke-width': 2, 'stroke-linecap': 'round' }, hint);
   el('path', { d: 'M-5 20 L0 28 L5 20', fill: 'none', stroke: C.text, 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, hint);
-  el('text', { x: 10, y: 18, 'font-size': 12, fill: C.text, 'font-weight': 600 }, hint).textContent = 'Falllinie';
+  el('text', { x: 10, y: 12, 'font-size': 13, fill: C.text, 'font-weight': 800 }, hint).textContent = 'Tal';
+  el('text', { x: 10, y: 26, 'font-size': 11, fill: C.text, 'font-weight': 600 }, hint).textContent = 'Falllinie';
 
   const ahead = el('polyline', { fill: 'none', stroke: C.ahead, 'stroke-width': 2, 'stroke-dasharray': '2 7', 'stroke-linecap': 'round', opacity: 0.7 }, svg);
   const band = [0, 1].map(() => el('polyline', { fill: 'none', stroke: C.trailBand, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: 0.8 }, svg));

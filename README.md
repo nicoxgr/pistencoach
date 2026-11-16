@@ -48,5 +48,5 @@ Icons: `icons/icon.svg` ist die Quelle. PNGs neu erzeugen mit `qlmanage -t -s 10
 
 ## Stand
 
-- Version 0.3.2: alle 23 Lektionen mit Inhalt und Animation, dazu Problemfinder, Glossar, Tipp des Tages und Einstufung
+- Version 0.3.3: alle 23 Lektionen mit Inhalt und Animation, dazu Problemfinder, Glossar, Tipp des Tages und Einstufung
 - Vereinfachungen im Schwungmodell: Schrägfahrt und Seitrutschen gibt es nur in der Ansicht von hinten (`side` hält die Kanten auf einer Seite). Die Buckelpiste zeigt das Beugen und Strecken, aber kein Geländeprofil

@@ -30,17 +30,22 @@ export function createFrontView(model) {
   el('stop', { offset: 0, 'stop-color': C.snowBottom }, g2);
   el('stop', { offset: 1, 'stop-color': C.snowTop }, g2);
 
-  el('rect', { width: W, height: HORIZON + 2, fill: `url(#${sky})` }, svg);
-  el('path', { d: `M0 ${HORIZON} L40 78 L70 92 L118 52 L150 80 L190 60 L232 88 L270 58 L318 86 L360 70 L360 ${HORIZON} Z`, fill: C.mountain }, svg);
+  el('rect', { width: W, height: H, fill: `url(#${sky})` }, svg);
+  el('path', { d: `M0 ${HORIZON} L40 78 L70 92 L118 52 L150 80 L190 60 L232 88 L270 58 L318 86 L360 70 L360 ${HORIZON + 90} L0 ${HORIZON + 90} Z`, fill: C.mountain }, svg);
   el('path', { d: 'M118 52 L104 64 L112 66 L120 60 L128 66 L136 64 Z M270 58 L258 68 L266 70 L272 64 L280 69 Z M190 60 L180 68 L192 70 L200 66Z', fill: C.mountainSnow }, svg);
-  el('rect', { y: HORIZON, width: W, height: H - HORIZON, fill: `url(#${snow})` }, svg);
+  // Everything that stands on the snow lives in `world`. It is sheared so the
+  // ground rises towards the hill and drops towards the valley, depending on
+  // where the skier is heading. Vertical lines stay vertical.
+  const world = el('g', {}, svg);
+  el('rect', { x: -300, y: HORIZON, width: W + 600, height: H - HORIZON + 200, fill: `url(#${snow})` }, world);
+  el('line', { x1: -300, y1: HORIZON, x2: W + 300, y2: HORIZON, stroke: C.snowShade, 'stroke-width': 2 }, world);
 
   // Snow specks rushing towards the horizon to suggest speed.
   const specks = [];
-  for (let i = 0; i < 18; i++) specks.push(el('ellipse', { fill: C.snowShade }, svg));
+  for (let i = 0; i < 18; i++) specks.push(el('ellipse', { fill: C.snowShade }, world));
 
-  const shadow = el('ellipse', { rx: 62, ry: 9, fill: '#000', opacity: 0.1 }, svg);
-  const fig = el('g', {}, svg);
+  const shadow = el('ellipse', { rx: 62, ry: 9, fill: '#000', opacity: 0.1 }, world);
+  const fig = el('g', {}, world);
   const skis = [0, 1].map(() => ({
     long: el('path', { stroke: C.skiOutline, 'stroke-width': 1.2, 'stroke-linejoin': 'round' }, fig),
     tail: el('rect', { width: 20, height: 6, rx: 2, stroke: C.skiOutline, 'stroke-width': 1.2 }, fig),
@@ -65,6 +70,15 @@ export function createFrontView(model) {
   const pressTitle = el('text', { x: W / 2, y: H - 6, 'font-size': 11, fill: C.text, opacity: 0.65, 'text-anchor': 'middle' }, svg);
   pressTitle.textContent = 'Druck auf den Ski';
 
+  // Where is the valley? Labels on the high and low side and a small compass.
+  const slopeTan = Math.tan(((model.slope || 12) * Math.PI) / 180);
+  const sideLabels = [0, 1].map((i) => el('text', { x: i ? W - 10 : 10, 'font-size': 12, 'font-weight': 700, fill: C.text, 'text-anchor': i ? 'end' : 'start' }, svg));
+  const compass = el('g', { transform: `translate(${W - 28} ${H - 44})` }, svg);
+  el('circle', { r: 16, fill: '#fff', opacity: 0.85 }, compass);
+  const needle = el('g', {}, compass);
+  el('path', { d: 'M0 -10 L6 4 L0 1 L-6 4 Z', fill: C.text }, needle);
+  el('text', { y: 30, 'font-size': 11, 'font-weight': 700, fill: C.text, 'text-anchor': 'middle' }, compass).textContent = 'Tal';
+
   function render(st) {
     // Specks
     const speed = 0.35;
@@ -78,6 +92,18 @@ export function createFrontView(model) {
     });
 
     const cx = W / 2 + st.x * 0.22;
+
+    // Cross slope seen from behind: positive k means the valley is on the right.
+    const k = clamp(slopeTan * Math.cos(st.heading) * 1.5, -0.5, 0.5);
+    set(world, { transform: `matrix(1 ${f(k * 100) / 100} 0 1 0 ${f(-k * cx)})` });
+    const vis = clamp((Math.abs(k) - 0.03) / 0.06);
+    sideLabels.forEach((t, i) => {
+      const x = i ? W - 10 : 10;
+      const low = i ? k > 0 : k < 0;
+      t.textContent = low ? 'Tal ↓' : '↑ Hang';
+      set(t, { y: f(HORIZON + 26 + k * (x - cx)), opacity: f(vis * 0.8) });
+    });
+    set(needle, { transform: `rotate(${f(deg(Math.PI / 2 - st.heading))})` });
     const w = st.width * 1.35 + Math.abs(st.splay) * 70;
     const hf = 1 - st.flex * 0.32; // projected height factor from behind
     const lean = st.lean;
@@ -160,10 +186,10 @@ export function createFrontView(model) {
     [st.pL, st.pR].forEach((p, i) => {
       const x = Math.round(feet[i][0] + (i === 0 ? -6 : 6));
       const len = 4 + p * 18;
-      const y0 = G + 14;
+      const y0 = G + 14 + k * (x - cx);
       press[i].arrow.setAttribute('d', `M${x - 3} ${y0} L${x + 3} ${y0} L${x + 3} ${y0 + len} L${x + 7} ${y0 + len} L${x} ${y0 + len + 7} L${x - 7} ${y0 + len} L${x - 3} ${y0 + len} Z`);
       set(press[i].arrow, { opacity: f(0.35 + p * 0.65) });
-      set(press[i].label, { x: x + (i === 0 ? -26 : 26), y: G + 30 });
+      set(press[i].label, { x: x + (i === 0 ? -26 : 26), y: f(y0 + 16) });
       press[i].label.textContent = `${Math.round(p * 100)} %`;
     });
   }
