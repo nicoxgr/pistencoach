@@ -52,7 +52,9 @@ export function createPlayer(scene) {
   range.setAttribute('aria-label', 'Zeitleiste');
   const speedBtn = h('button', 'speed');
   speedBtn.type = 'button';
-  controls.append(playBtn, range, speedBtn);
+  const fullBtn = h('button', 'full');
+  fullBtn.type = 'button';
+  controls.append(playBtn, range, speedBtn, fullBtn);
 
   const viewSeg = h('div', 'seg');
   viewSeg.setAttribute('role', 'group');
@@ -200,6 +202,22 @@ export function createPlayer(scene) {
     stepList.append(li);
   });
 
+  // Full screen: a fixed overlay, because iPhones have no Fullscreen API for
+  // page elements. In landscape the stage sits next to the controls.
+  let full = false;
+  function setFull(on) {
+    full = on;
+    root.classList.toggle('full', on);
+    document.documentElement.classList.toggle('player-full', on);
+    fullBtn.innerHTML = icon(on ? 'collapse' : 'expand');
+    fullBtn.setAttribute('aria-label', on ? 'Vollbild beenden' : 'Vollbild');
+    fullBtn.setAttribute('aria-pressed', on);
+  }
+  const onKey = (e) => e.key === 'Escape' && full && setFull(false);
+  document.addEventListener('keydown', onKey);
+  fullBtn.onclick = () => setFull(!full);
+  setFull(false);
+
   playBtn.onclick = () => setPlaying(!playing);
   bigPlay.onclick = () => setPlaying(true);
   stage.onclick = (e) => {
@@ -246,6 +264,8 @@ export function createPlayer(scene) {
     el: root,
     destroy() {
       cancelAnimationFrame(raf);
+      setFull(false);
+      document.removeEventListener('keydown', onKey);
       if (io) io.disconnect();
       if (ro) ro.disconnect();
     },

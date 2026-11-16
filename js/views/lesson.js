@@ -4,7 +4,7 @@
 import { allLessons, findLesson } from '../../data/lessons.js';
 import { scenes } from '../anim/scenes/index.js';
 import { createPlayer } from '../anim/player.js';
-import { getStatus, setStatus, getNote, setNote, getChecks, toggleCheck, STATUS } from '../store.js';
+import { getStatus, setStatus, getNote, setNote, getChecks, toggleCheck, getUpdatedAt, STATUS } from '../store.js';
 import { esc, icon, pisteDot, pageHead, linkTerms, STATUS_LABEL } from './common.js';
 import { openTerm } from '../ui/sheet.js';
 import { setSeg, burst, pop, reduced } from '../ui/motion.js';
@@ -91,7 +91,7 @@ export function lessonView({ id }) {
       <div data-player></div>
       ${l.safety ? `<div class="card safety">${icon('shield')}<p>${esc(l.safety)}</p></div>` : ''}
       <section class="cue-box">
-        <h3 class="mini-title">Merksätze für die Piste</h3>
+        <h3 class="mini-title">Merksätze für die Piste<a class="mini-link" href="#/piste/${l.id}">${icon('glove')}Pistenmodus</a></h3>
         <div class="cue-strip stagger">${l.cues.map((c) => `<span class="cue">${esc(c)}</span>`).join('')}</div>
       </section>
       ${sections}
@@ -100,6 +100,7 @@ export function lessonView({ id }) {
         <div class="seg seg-status" role="radiogroup" aria-label="Status">
           ${STATUS.map((s) => `<button type="button" role="radio" data-st="${s}" aria-checked="${s === status}">${STATUS_LABEL[s]}</button>`).join('')}
         </div>
+        <p class="changed" data-changed></p>
         <label class="note-label" for="note">Notiz</label>
         <textarea id="note" rows="3" placeholder="Was hat geklappt, was nicht?">${esc(getNote(id))}</textarea>
         <p class="saved" data-saved aria-live="polite"></p>
@@ -122,8 +123,15 @@ export function lessonView({ id }) {
       const seg = root.querySelector('.seg-status');
       const stButtons = [...seg.querySelectorAll('[data-st]')];
       const allDone = root.querySelector('[data-alldone]');
+      const changed = root.querySelector('[data-changed]');
+      const showChanged = () => {
+        const at = getUpdatedAt(id);
+        changed.textContent = at ? `Zuletzt geändert am ${new Date(at).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}` : '';
+      };
+      showChanged();
       const applyStatus = (s, celebrate) => {
         setStatus(id, s);
+        showChanged();
         setSeg(seg, STATUS.indexOf(s));
         seg.dataset.value = s;
         if (s === 'done' && celebrate) burst(stButtons[2]);
@@ -135,7 +143,20 @@ export function lessonView({ id }) {
       };
       setSeg(seg, STATUS.indexOf(status));
       seg.dataset.value = status;
-      stButtons.forEach((b) => (b.onclick = () => applyStatus(b.dataset.st, true)));
+      stButtons.forEach((b, j) => {
+        b.onclick = () => applyStatus(b.dataset.st, true);
+        b.tabIndex = b.dataset.st === status ? 0 : -1;
+        // Radio group: arrow keys move the selection
+        b.onkeydown = (e) => {
+          const d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+          if (!d) return;
+          e.preventDefault();
+          const n = stButtons[(j + d + stButtons.length) % stButtons.length];
+          stButtons.forEach((x) => (x.tabIndex = x === n ? 0 : -1));
+          n.focus();
+          n.click();
+        };
+      });
 
       // Self-check
       const count = root.querySelector('[data-checkcount]');

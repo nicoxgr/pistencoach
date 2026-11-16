@@ -25,8 +25,8 @@ export function coachView() {
       <section class="card piste-mode piste-${l.level.piste}">
         <p class="eyebrow">Pistenmodus · ${l.id} ${esc(l.title)}</p>
         <ul class="cues stagger">${l.cues.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>
-        <p class="piste-hint">Drei Merksätze für die nächste Abfahrt. Nimm dir pro Fahrt nur einen vor.</p>
-        <a class="btn warm press" href="#/lektion/${l.id}">Zur Lektion${icon('chev')}</a>
+        <p class="piste-hint">Im Pistenmodus siehst du einen Gedanken pro Bildschirm, mit großer Schrift und Tasten für Handschuhe.</p>
+        <div class="row"><a class="btn warm press" href="#/piste/${l.id}">${icon('glove')}Pistenmodus starten</a><a class="btn on-dark press" href="#/lektion/${l.id}">Zur Lektion</a></div>
       </section>
       <section class="card">
         <h3 class="card-title">${icon('target')}Dein Stand</h3>
@@ -39,6 +39,11 @@ export function coachView() {
           <span class="good" style="--to:${share(o.done) / 100}"></span><span class="warn" style="--to:${share(o.practicing) / 100}"></span>
         </div>
       </section>
+      <a class="card nav-card press" href="#/verlauf">
+        <span class="callout-ic">${icon('clock')}</span>
+        <span class="callout-body"><b>Verlauf</b>Was du an welchem Tag geübt hast.</span>
+        ${icon('chev', 'chev')}
+      </a>
       <a class="card nav-card press" href="#/einstufung">
         <span class="callout-ic">${icon('sliders')}</span>
         <span class="callout-body"><b>Einstufung</b>Sag, was du schon fährst, und überspring den Rest.</span>

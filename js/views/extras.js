@@ -2,7 +2,7 @@
 
 import { glossary } from '../../data/extras.js';
 import { levels } from '../../data/lessons.js';
-import { setStatus, setOnboardingDone } from '../store.js';
+import { setStatus, setOnboardingDone, logPlacement } from '../store.js';
 import { esc, icon, pageHead, pisteDot } from './common.js';
 import { stagger, burst } from '../ui/motion.js';
 
@@ -74,7 +74,8 @@ export function placementView() {
       });
       apply.onclick = () => {
         if (!pick) return;
-        levels.filter((lv) => lv.id <= pick.upTo).forEach((lv) => lv.lessons.forEach((l) => setStatus(l.id, 'done')));
+        levels.filter((lv) => lv.id <= pick.upTo).forEach((lv) => lv.lessons.forEach((l) => setStatus(l.id, 'done', { log: false })));
+        if (pick.upTo > 0) logPlacement(pick.upTo);
         setOnboardingDone();
         burst(apply);
         setTimeout(() => (location.hash = '#/'), 350);

@@ -1,7 +1,7 @@
 // Service worker: precache the whole app so it runs offline on the slope.
 // Bump CACHE with every release (keep in sync with js/version.js).
 
-const CACHE = 'pistencoach-0.4.1';
+const CACHE = 'pistencoach-0.5.0';
 const ASSETS = [
   './',
   'index.html',
@@ -24,6 +24,8 @@ const ASSETS = [
   'js/views/problems.js',
   'js/views/more.js',
   'js/views/extras.js',
+  'js/views/piste.js',
+  'js/views/history.js',
   'js/anim/curves.js',
   'js/anim/svg.js',
   'js/anim/palette.js',

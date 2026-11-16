@@ -8,7 +8,7 @@ export const STATUS = ['open', 'practicing', 'done'];
 let data = load();
 
 function empty() {
-  return { version: VERSION, lessons: {}, onboardingDone: false, theme: 'auto' };
+  return { version: VERSION, lessons: {}, log: [], onboardingDone: false, theme: 'auto' };
 }
 
 function load() {
@@ -33,8 +33,25 @@ function save() {
 export const getStatus = (id) => data.lessons[id]?.status || 'open';
 export const getNote = (id) => data.lessons[id]?.note || '';
 
-export function setStatus(id, status) {
+// History: one entry per status change, newest last. `entry` is either
+// { id, status } for a lesson or { placement: level } for the placement.
+function addLog(entry) {
+  data.log = [...(data.log || []), { at: new Date().toISOString(), ...entry }].slice(-500);
+}
+
+export const getLog = () => data.log || [];
+export const getUpdatedAt = (id) => data.lessons[id]?.updatedAt || null;
+
+export function logPlacement(level) {
+  addLog({ placement: level });
+  save();
+}
+
+// `log: false` keeps bulk changes (placement) out of the history.
+export function setStatus(id, status, { log = true } = {}) {
+  const changed = getStatus(id) !== status;
   data.lessons[id] = { ...data.lessons[id], status, updatedAt: new Date().toISOString() };
+  if (changed && log) addLog({ id, status });
   save();
 }
 
@@ -73,7 +90,8 @@ export function exportJson() {
 
 export function importJson(text) {
   const d = JSON.parse(text);
-  if (!d || d.version !== VERSION || typeof d.lessons !== 'object') throw new Error('Unbekanntes Format');
+  if (!d || d.version !== VERSION || !d.lessons || typeof d.lessons !== 'object' || Array.isArray(d.lessons)) throw new Error('Unbekanntes Format');
+  if (!Array.isArray(d.log)) d.log = [];
   data = { ...empty(), ...d };
   save();
 }

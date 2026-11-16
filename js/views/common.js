@@ -46,6 +46,9 @@ const ICONS = {
   sliders: '<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>',
   shield: '<path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/>',
   refresh: '<path d="M20 11a8 8 0 1 0-2.3 6.3M20 5v6h-6"/>',
+  expand: '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
+  collapse: '<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>',
+  glove: '<path d="M7 11V6a2 2 0 0 1 4 0v4V5a2 2 0 0 1 4 0v6l1.5-1.8a1.8 1.8 0 0 1 2.9 2.1L16 17.5c-.9 1.6-2.4 2.5-4.2 2.5H11a4 4 0 0 1-4-4z"/>',
 };
 
 export const icon = (name, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name]}</svg>`;

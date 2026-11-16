@@ -8,6 +8,8 @@ import { coachView } from './views/coach.js';
 import { problemsView } from './views/problems.js';
 import { moreView, applyTheme } from './views/more.js';
 import { glossaryView, placementView } from './views/extras.js';
+import { pisteView } from './views/piste.js';
+import { historyView } from './views/history.js';
 import { stagger, countUp, accordions } from './ui/motion.js';
 
 const TABS = ['path', 'coach', 'problems', 'more'];
@@ -17,6 +19,8 @@ const routes = [
   { re: /^\/lektion\/(?<id>[\d.]+)$/, view: lessonView, tab: 'path', depth: 2 },
   { re: /^\/einstufung$/, view: placementView, tab: 'path', depth: 1 },
   { re: /^\/coach$/, view: coachView, tab: 'coach', depth: 0 },
+  { re: /^\/verlauf$/, view: historyView, tab: 'coach', depth: 1 },
+  { re: /^\/piste(?:\/(?<id>[\d.]+))?$/, view: pisteView, tab: 'coach', depth: 3 },
   { re: /^\/probleme$/, view: problemsView, tab: 'problems', depth: 0 },
   { re: /^\/mehr$/, view: moreView, tab: 'more', depth: 0 },
   { re: /^\/glossar$/, view: glossaryView, tab: 'more', depth: 1 },
@@ -33,6 +37,10 @@ let lastPath = null;
 let lastDepth = 0;
 
 applyTheme();
+
+// iOS text size setting: follow it, but cap it so the layout stays intact.
+const rootSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
+if (rootSize > 22) document.documentElement.style.fontSize = '22px';
 
 function render() {
   const path = location.hash.replace(/^#/, '') || '/';
@@ -78,6 +86,8 @@ function render() {
   if (!v.ownAccordions) accordions(app);
 
   if (!samePage) window.scrollTo(0, dir === 'back' ? scrollPos.get(path) || 0 : 0);
+  // Screen readers and keyboards continue at the top of the new page.
+  if (!samePage && lastPath !== null) app.focus({ preventScroll: true });
   lastPath = path;
   lastDepth = route.depth;
 
@@ -125,9 +135,12 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:' && !local) {
       reg.update().catch(() => {});
     });
   });
+  // Reload when a new version takes over, but not on the very first visit,
+  // where the worker only starts to control a page that is already current.
+  const hadController = !!navigator.serviceWorker.controller;
   let reloaded = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (reloaded) return;
+    if (reloaded || !hadController) return;
     reloaded = true;
     location.reload();
   });
