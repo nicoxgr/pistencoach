@@ -5,7 +5,8 @@ import { allLessons, findLesson } from '../../data/lessons.js';
 import { scenes } from '../anim/scenes/index.js';
 import { createPlayer } from '../anim/player.js';
 import { getStatus, setStatus, getNote, setNote, getChecks, toggleCheck, STATUS } from '../store.js';
-import { esc, icon, pisteDot, pageHead, STATUS_LABEL } from './common.js';
+import { esc, icon, pisteDot, pageHead, linkTerms, STATUS_LABEL } from './common.js';
+import { openTerm } from '../ui/sheet.js';
 import { setSeg, burst, pop, reduced } from '../ui/motion.js';
 
 const section = (key, ic, title, count, body, open = false) => `
@@ -28,15 +29,17 @@ export function lessonView({ id }) {
   const status = getStatus(id);
   const checked = getChecks(id);
   let player = null;
+  const used = new Set();
+  const t = (x) => linkTerms(x, used); // text with tappable glossary terms
 
   const sections = [
-    section('focus', 'eye', 'Worauf du achtest', l.focus.length, `<ul class="focus">${l.focus.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`, true),
+    section('focus', 'eye', 'Worauf du achtest', l.focus.length, `<ul class="focus">${l.focus.map((x) => `<li>${t(x)}</li>`).join('')}</ul>`, true),
     section(
       'why',
       'bulb',
       'Warum das funktioniert',
       0,
-      `<p>${esc(l.why)}</p><p class="feel"><span class="lbl good">So fühlt es sich an</span>${esc(l.feel)}</p>`,
+      `<p>${t(l.why)}</p><p class="feel"><span class="lbl good">So fühlt es sich an</span>${t(l.feel)}</p>`,
     ),
     section(
       'mistakes',
@@ -48,13 +51,13 @@ export function lessonView({ id }) {
           (m) => `
           <div class="mistake">
             <b>${esc(m.title)}</b>
-            <p><span class="lbl">Warum</span>${esc(m.cause)}</p>
-            <p><span class="lbl good">Besser</span>${esc(m.fix)}</p>
+            <p><span class="lbl">Warum</span>${t(m.cause)}</p>
+            <p><span class="lbl good">Besser</span>${t(m.fix)}</p>
           </div>`,
         )
         .join(''),
     ),
-    section('drills', 'flag', 'Übungen auf der Piste', l.drills.length, `<ol class="drills">${l.drills.map((x) => `<li>${esc(x)}</li>`).join('')}</ol>`),
+    section('drills', 'flag', 'Übungen auf der Piste', l.drills.length, `<ol class="drills">${l.drills.map((x) => `<li>${t(x)}</li>`).join('')}</ol>`),
     section(
       'checks',
       'target',
@@ -107,6 +110,8 @@ export function lessonView({ id }) {
       </nav>
     `,
     mount(root) {
+      root.querySelectorAll('.term-link').forEach((b) => (b.onclick = () => openTerm(b.dataset.term, b)));
+
       const slot = root.querySelector('[data-player]');
       if (l.scene && scenes[l.scene]) {
         player = createPlayer(scenes[l.scene]);

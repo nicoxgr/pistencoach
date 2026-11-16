@@ -51,6 +51,9 @@ export function createSideView(model) {
   const puff = el('ellipse', { rx: 8, ry: 2.5, fill: '#fff', stroke: C.trailLine, 'stroke-width': 1 }, fig);
   const ski = el('path', { d: 'M-52 -2 L50 -2 Q62 -3 66 -12 L68 -11 Q64 2 50 2 L-52 2 Q-56 0 -52 -2 Z', stroke: C.skiOutline, 'stroke-width': 1.2, fill: C.ski }, fig);
   const boot = el('path', { d: 'M-11 -2 L-11 -26 L6 -26 L9 -14 L16 -8 L16 -2 Z', fill: C.helmet }, fig);
+  // The far leg and arm sit behind the near ones and are drawn darker for depth.
+  const legFar = limb(fig, '#1a2940', 14);
+  const armFar = limb(fig, C.jacketDark, 9);
   const legBack = limb(fig, C.pants, 15);
   const torso = limb(fig, C.jacket, 24);
   const arm = limb(fig, C.jacket, 10);
@@ -84,14 +87,20 @@ export function createSideView(model) {
     const head = add(shoulder, [Math.sin(trunk * 0.7), -Math.cos(trunk * 0.7)], 20);
 
     set(legBack, { points: `${f(ankle[0])},${f(ankle[1])} ${f(knee[0])},${f(knee[1])} ${f(hip[0])},${f(hip[1])}` });
+    set(legFar, { points: `${f(ankle[0] + 7)},${f(ankle[1])} ${f(knee[0] + 6)},${f(knee[1] - 2)} ${f(hip[0] + 2)},${f(hip[1])}` });
     set(torso, { points: `${f(hip[0])},${f(hip[1])} ${f(shoulder[0])},${f(shoulder[1])}` });
     set(helmet, { cx: f(head[0]), cy: f(head[1]) });
     set(goggle, { x: f(head[0] + 6), y: f(head[1] - 3) });
 
+    // Arms: relaxed and forward in balance, reaching for the pole plant,
+    // pulled up and back when the skier sits in the back seat.
     const plant = st.pole.amt;
-    const elbow = add(shoulder, [10 + plant * 6, 24 - plant * 4]);
-    const hand = add(shoulder, [26 + plant * 14, 38 - plant * 8]);
+    const seat = Math.max(0, -fore);
+    const reach = Math.max(0, fore);
+    const elbow = add(shoulder, [10 + plant * 6 - seat * 12 + reach * 3, 24 - plant * 4 - seat * 6]);
+    const hand = add(shoulder, [26 + plant * 14 - seat * 14 + reach * 6, 38 - plant * 8 - seat * 16 + fl * 4]);
     set(arm, { points: `${f(shoulder[0])},${f(shoulder[1])} ${f(elbow[0])},${f(elbow[1])} ${f(hand[0])},${f(hand[1])}` });
+    set(armFar, { points: `${f(shoulder[0] + 3)},${f(shoulder[1])} ${f(elbow[0] + 7)},${f(elbow[1] - 2)} ${f(hand[0] + 6)},${f(hand[1] - 5)}` });
     set(glove, { cx: f(hand[0]), cy: f(hand[1]) });
     const restTip = [hand[0] - 34, -8];
     const plantTip = [hand[0] + 22, 0];

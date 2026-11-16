@@ -42,12 +42,15 @@ Der Fortschritt liegt nur auf dem Gerät (`localStorage`). Unter „Mehr“ läs
 
 `CACHE` in `sw.js` und `APP_VERSION` in `js/version.js` gemeinsam hochzählen. Installierte Apps zeigen dann „Neue Version verfügbar“. Die App sucht beim Start und bei jeder Rückkehr in den Vordergrund nach Updates. Direkt nach dem Start übernimmt sie die neue Version von selbst, später fragt sie per Hinweis.
 
+Vor jedem Release `node tools/check.mjs` ausführen. Das Skript lädt alle Module und rechnet jede Szene einmal durch.
+
 Lokal testen: `python3 -m http.server` im Projektordner, dann `http://localhost:8000`. Auf `localhost` registriert die App keinen Service Worker, Änderungen sind also sofort sichtbar.
 
 Icons: `icons/icon.svg` ist die Quelle. PNGs neu erzeugen mit `qlmanage -t -s 1024 -o /tmp icons/icon.svg` und `sips -z <Größe> <Größe>`.
 
 ## Stand
 
-- Version 0.4.0: alle 23 Lektionen mit Inhalt und Animation, dazu Problemfinder, Glossar, Tipp des Tages und Einstufung
+- Version 0.4.1: alle 23 Lektionen mit Inhalt und Animation, dazu Problemfinder, Glossar, Tipp des Tages und Einstufung
 - Das Schwungmodell kennt Kurvenfolgen, Geradeausfahrt, Querfahrt (`traverse`), seitliches Rutschen (`slip`) und Buckel (`bumps`). Die Ansicht von hinten neigt die Schneefläche je nach Fahrtrichtung, alle Ansichten folgen dem Tempo (`warp`)
+- Glossarbegriffe in den Lektionstexten sind antippbar und öffnen die Erklärung (`linkTerms` in `js/views/common.js`, `js/ui/sheet.js`)
 - Beim Fehlerbild blendet der Player die Schritte aus, weil sie die richtige Ausführung beschreiben. Eine Variante kann eigene `steps` mitbringen

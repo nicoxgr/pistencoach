@@ -33,9 +33,10 @@ export function createFrontView(model) {
   el('rect', { width: W, height: H, fill: `url(#${sky})` }, svg);
   el('path', { d: `M0 ${HORIZON} L40 78 L70 92 L118 52 L150 80 L190 60 L232 88 L270 58 L318 86 L360 70 L360 ${HORIZON + 90} L0 ${HORIZON + 90} Z`, fill: C.mountain }, svg);
   el('path', { d: 'M118 52 L104 64 L112 66 L120 60 L128 66 L136 64 Z M270 58 L258 68 L266 70 L272 64 L280 69 Z M190 60 L180 68 L192 70 L200 66Z', fill: C.mountainSnow }, svg);
-  // Everything that stands on the snow lives in `world`. It is sheared so the
-  // ground rises towards the hill and drops towards the valley, depending on
-  // where the skier is heading. Vertical lines stay vertical.
+  // The snow surface lives in `world`. It is sheared so the ground rises towards
+  // the hill and drops towards the valley, depending on where the skier is
+  // heading. The figure is not sheared: it is drawn upright with each foot placed
+  // on the sloped ground, so it keeps its proportions.
   const world = el('g', {}, svg);
   el('rect', { x: -300, y: HORIZON, width: W + 600, height: H - HORIZON + 200, fill: `url(#${snow})` }, world);
   el('line', { x1: -300, y1: HORIZON, x2: W + 300, y2: HORIZON, stroke: C.snowShade, 'stroke-width': 2 }, world);
@@ -44,8 +45,8 @@ export function createFrontView(model) {
   const specks = [];
   for (let i = 0; i < 18; i++) specks.push(el('ellipse', { fill: C.snowShade }, world));
 
-  const shadow = el('ellipse', { rx: 62, ry: 9, fill: '#000', opacity: 0.1 }, world);
-  const fig = el('g', {}, world);
+  const shadow = el('ellipse', { rx: 62, ry: 9, fill: '#000', opacity: 0.1 }, svg);
+  const fig = el('g', {}, svg);
   const skis = [0, 1].map(() => ({
     long: el('path', { stroke: C.skiOutline, 'stroke-width': 1.2, 'stroke-linejoin': 'round' }, fig),
     tail: el('rect', { width: 20, height: 6, rx: 2, stroke: C.skiOutline, 'stroke-width': 1.2 }, fig),
@@ -95,7 +96,9 @@ export function createFrontView(model) {
     const cx = W / 2 + st.x * 0.22;
 
     // Cross slope seen from behind: positive k means the valley is on the right.
-    const k = clamp(slopeTan * Math.cos(st.heading) * 1.5, -0.5, 0.5);
+    const k = clamp(slopeTan * Math.cos(st.heading) * 1.25, -0.4, 0.4);
+    const gy = (x) => G + k * (x - cx); // ground height under a point
+    const gamma = Math.atan(k); // ground angle on screen
     set(world, { transform: `matrix(1 ${f(k * 100) / 100} 0 1 0 ${f(-k * cx)})` });
     const vis = clamp((Math.abs(k) - 0.03) / 0.06);
     sideLabels.forEach((t, i) => {
@@ -104,35 +107,40 @@ export function createFrontView(model) {
       t.textContent = low ? 'Tal ↓' : '↑ Hang';
       set(t, { y: f(HORIZON + 26 + k * (x - cx)), opacity: f(vis * 0.8) });
     });
+    set(pressTitle, { opacity: f(0.65 * (1 - vis)) }); // the tilted labels need the room
     set(needle, { transform: `rotate(${f(deg(Math.PI / 2 - st.heading))})` });
     const w = st.width * 1.35 + Math.abs(st.splay) * 70;
     const hf = 1 - st.flex * 0.32; // projected height factor from behind
     const lean = st.lean;
     const torsoLean = lean * (1 - st.angulation);
-    const feet = [[cx - w / 2, G], [cx + w / 2, G]];
+    const feet = [[cx - w / 2, gy(cx - w / 2)], [cx + w / 2, gy(cx + w / 2)]];
     const edges = [st.edgeL, st.edgeR];
 
-    set(shadow, { cx: f(cx), cy: f(G + 6), rx: f(40 + w / 2) });
+    set(shadow, { cx: f(cx), cy: f(G + 6), rx: f(40 + w / 2), transform: `rotate(${f(deg(gamma))} ${f(cx)} ${G + 6})` });
 
     // Skis: long trapezoid towards the tip (perspective), tail block, edge line
     feet.forEach((p, i) => {
-      const e = edges[i];
+      const e = edges[i]; // edge angle relative to the snow
+      const a = e + gamma; // ski tilt on screen
       const side = i === 0 ? -1 : 1;
       const sk = skis[i];
-      const tipX = p[0] - side * Math.min(Math.abs(st.splay) * 70, w / 2 - 7) + st.lean * 10;
-      const tipY = G - 44;
+      const y = p[1];
+      // Tips converge in a snowplough but never touch.
+      const tipX = p[0] - side * Math.min(Math.abs(st.splay) * 70, Math.max(0, w / 2 - 13)) + st.lean * 10;
+      const tipY = gy(tipX) - 44;
       const hw = 10;
-      const dx = Math.cos(e) * hw;
-      const dy = Math.sin(e) * hw;
-      sk.long.setAttribute('d', `M${f(p[0] - dx)} ${f(G + 4 - dy)} L${f(tipX - 2.5)} ${f(tipY)} Q${f(tipX)} ${f(tipY - 5)} ${f(tipX + 2.5)} ${f(tipY)} L${f(p[0] + dx)} ${f(G + 4 + dy)} Z`);
+      const dx = Math.cos(a) * hw;
+      const dy = Math.sin(a) * hw;
+      sk.long.setAttribute('d', `M${f(p[0] - dx)} ${f(y + 4 - dy)} L${f(tipX - 2.5)} ${f(tipY)} Q${f(tipX)} ${f(tipY - 5)} ${f(tipX + 2.5)} ${f(tipY)} L${f(p[0] + dx)} ${f(y + 4 + dy)} Z`);
       const pr = i === 0 ? st.pL : st.pR;
       const fill = mix(C.ski, C.skiPress, clamp((pr - 0.35) / 0.5));
       set(sk.long, { fill });
-      set(sk.tail, { x: f(p[0] - 10), y: f(G + 1), fill, transform: `rotate(${f(deg(e))} ${f(p[0])} ${f(G + 4)})` });
-      const ex = p[0] + (e >= 0 ? 1 : -1) * Math.cos(e) * 10;
-      const ey = G + 4 + (e >= 0 ? 1 : -1) * Math.sin(e) * 10;
-      set(sk.edge, { x1: f(ex), y1: f(ey), x2: f(ex + (tipX - p[0]) * 0.9), y2: f(ey - 44 * 0.9), opacity: f(clamp((Math.abs(e) - 0.04) / 0.3)) });
-      set(boots[i], { x: f(p[0] - 9), y: f(G - 18), transform: `rotate(${f(deg(e))} ${f(p[0])} ${f(G)})` });
+      set(sk.tail, { x: f(p[0] - 10), y: f(y + 1), fill, transform: `rotate(${f(deg(a))} ${f(p[0])} ${f(y + 4)})` });
+      const sgn = e >= 0 ? 1 : -1;
+      const ex = p[0] + sgn * Math.cos(a) * 10;
+      const ey = y + 4 + sgn * Math.sin(a) * 10;
+      set(sk.edge, { x1: f(ex), y1: f(ey), x2: f(ex + (tipX - p[0]) * 0.9), y2: f(ey + (tipY - y) * 0.9), opacity: f(clamp((Math.abs(e) - 0.04) / 0.3)) });
+      set(boots[i], { x: f(p[0] - 9), y: f(y - 18), transform: `rotate(${f(deg(a))} ${f(p[0])} ${f(y)})` });
     });
 
     // Legs: ankle -> knee -> hip, knees pushed into the turn
@@ -144,7 +152,7 @@ export function createFrontView(model) {
     const hips = [add(P, [Math.cos(tiltP), Math.sin(tiltP)], -hipHalf), add(P, [Math.cos(tiltP), Math.sin(tiltP)], hipHalf)];
     feet.forEach((p, i) => {
       const side = i === 0 ? -1 : 1;
-      const ankle = [p[0], G - 14];
+      const ankle = [p[0], p[1] - 14];
       const hip = hips[i];
       const kneeIn = lean * (3 + 9 * st.flex) - side * Math.abs(st.splay) * 26;
       const knee = [(ankle[0] + hip[0]) / 2 + kneeIn, (ankle[1] + hip[1]) / 2 + 2];
@@ -176,8 +184,10 @@ export function createFrontView(model) {
       const hand = add(add(sh, tr, side * (22 - plant * 6)), tu, -46 + plant * 10);
       set(arms[i], { points: `${f(sh[0])},${f(sh[1])} ${f(elbow[0])},${f(elbow[1])} ${f(hand[0])},${f(hand[1])}` });
       set(gloves[i], { cx: f(hand[0]), cy: f(hand[1]) });
-      const restTip = [hand[0] + side * 26, G + 14];
-      const plantTip = [cx + side * (w / 2 + 26), G - 30];
+      const restX = hand[0] + side * 26;
+      const plantX = cx + side * (w / 2 + 26);
+      const restTip = [restX, gy(restX) + 14];
+      const plantTip = [plantX, gy(plantX) - 30];
       const tip = [restTip[0] + (plantTip[0] - restTip[0]) * plant, restTip[1] + (plantTip[1] - restTip[1]) * plant];
       set(poles[i], { x1: f(hand[0]), y1: f(hand[1]), x2: f(tip[0]), y2: f(tip[1]) });
       set(puffs[i], { cx: f(plantTip[0]), cy: f(plantTip[1] + 1), opacity: f(clamp((plant - 0.75) * 4)) });

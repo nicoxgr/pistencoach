@@ -2,8 +2,23 @@
 
 import { getStatus } from '../store.js';
 import { allLessons } from '../../data/lessons.js';
+import { glossary } from '../../data/extras.js';
 
 export const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+
+// Glossary terms inside running text become tappable. Only the noun form is
+// matched (with common endings), and each term is linked once per page.
+const TERMS = glossary.map(([t]) => t).filter((t) => t !== 'Pistenfarben').sort((a, b) => b.length - a.length);
+// No lookbehind: older iOS Safari does not support it.
+const TERM_RE = new RegExp(`(^|[^\\wäöüÄÖÜß-])(${TERMS.join('|')})((?:es|en|s|n|e)?)(?![\\wäöüÄÖÜß-])`, 'g');
+
+export function linkTerms(text, used) {
+  return esc(text).replace(TERM_RE, (match, before, term, ending) => {
+    if (used.has(term)) return match;
+    used.add(term);
+    return `${before}<button type="button" class="term-link" data-term="${term}">${term}${ending}</button>`;
+  });
+}
 
 export const STATUS_LABEL = { open: 'Offen', practicing: 'Übe ich', done: 'Sicher' };
 
